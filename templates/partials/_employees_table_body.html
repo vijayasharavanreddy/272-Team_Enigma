@@ -1,0 +1,14 @@
+<!-- _employees_table_body.html -->
+{% for employee in employees %}
+<tr>
+    <td>{{ employee.emp_no }}</td>
+    <td>{{ employee.first_name }}</td>
+    <td>{{ employee.last_name }}</td>
+    <td>{{ employee.dept_name }}</td>
+    <td>{{ employee.hire_date }}</td>
+    <td>
+        <!-- Make sure to call the openEditDialog function correctly -->
+        <button type="button" class="edit-button" onclick="openEditDialog('{{ employee.emp_no }}')">Edit</button>
+    </td>
+</tr>
+{% endfor %}

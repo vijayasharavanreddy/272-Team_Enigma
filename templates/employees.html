@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Employees</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+<div id="pageOverlay" class="overlay"></div>
+    <div class="header">
+        <h1>Employees</h1>
+    </div>
+    <div class="search-container">
+        <form method="GET" action="{{ url_for('employees') }}" class="search-form">
+            <input type="text" name="search" placeholder="Search for employees..." class="search-input" oninput="performSearch(this.value)">
+            <button type="submit" class="search-button">Search</button>
+        </form>
+
+        <div class="manager-toggle">
+            <label class="switch">
+                <input type="checkbox" id="onlyManagers" name="onlyManagers" onchange="filterManagers()">
+                <span class="slider round"></span>
+            </label>
+            <span>Only Managers</span>
+        </div>
+
+    </div>
+    <div  class="container">
+        <table id="employees-table">
+            <thead>
+                <tr>
+                    <th><a href="{{ url_for('employees', sort_by='emp_no', direction='asc') }}">Employee No</a></th>
+                    <th><a href="{{ url_for('employees', sort_by='first_name', direction='asc') }}">First Name</a></th>
+                    <th>Last Name</th>
+                    <th>
+                        <a href="{{ url_for('employees', sort_by='dept_name', direction='asc' if sort_by != 'dept_name' or sort_direction == 'desc' else 'desc') }}">
+                            Department
+                            <!-- Add sorting indicators (arrows) as needed -->
+                        </a>
+                    </th>
+                    <th>Hire Date</th>
+                    <th>Edit</th>
+                </tr>
+            </thead>
+           <tbody>
+                {% include 'partials/_employees_table_body.html' %}
+            </tbody>
+        </table>
+        <div class="pagination">
+            {% if pagination.has_prev %}
+<!--                <a href="{{ url_for('employees', page=pagination.prev_num, search=search, onlyManagers=only_managers_state) }}">Previous</a>-->
+            <a href="javascript:void(0);"
+   onclick="loadPageData('{{ pagination.prev_num }}', '{{ search }}', '{{ only_managers_state }}')">Previous</a>
+            {% endif %}
+            <!-- Current Page Info -->
+            {% if pagination.has_next %}
+<!--                <a href="{{ url_for('employees', page=pagination.next_num, search=search, onlyManagers=only_managers_state) }}">Next</a>-->
+                    <a href="javascript:void(0);"
+   onclick="loadPageData('{{ pagination.next_num }}', '{{ search }}', '{{ only_managers_state }}')">Next</a>
+
+            {% endif %}
+        </div>
+         <a href="{{ url_for('dashboard') }}" class="back-button">Back to Dashboard</a>
+    </div>
+
+    <script>
+
+        $(document).ajaxStart(function() {
+            $("#ajaxSpinnerContainer").show();
+        }).ajaxStop(function() {
+            $("#ajaxSpinnerContainer").hide();
+        });
+
+    function loadPageData(pageNumber, search, onlyManagers) {
+    $("#ajaxSpinnerContainer").show(); // Show spinner
+
+    $.ajax({
+        url: '/employees', // URL of the server-side route
+        type: 'GET',
+        data: {
+            page: pageNumber,
+            search: search,
+            onlyManagers: onlyManagers
+        },
+        success: function(response) {
+            // Replace the table content with the new data
+            $('#employees-table tbody').html(response);
+        },
+        error: function(error) {
+            console.error("Error during AJAX request:", error);
+        },
+        complete: function() {
+            $("#ajaxSpinnerContainer").hide(); // Hide spinner
+        }
+    });
+}
+
+
+    function filterManagers() {
+         const isOnlyManagers = $('#onlyManagers').is(':checked');
+        // Update the pagination links
+        $('a.page-link').each(function() {
+            var href = $(this).attr('href');
+            if (href) {
+                href = updateQueryStringParameter(href, 'onlyManagers', isOnlyManagers);
+                $(this).attr('href', href);
+            }
+        });
+
+        // If you are fetching the table data via AJAX, you can send this as a parameter
+        // and modify the server-side query to return only managers.
+        $.ajax({
+            url: '/employees', // or the URL where you fetch the employees data
+            type: 'GET',
+            data: { onlyManagers: isOnlyManagers },
+            success: function(response) {
+                // Replace the table body with the new filtered data
+                $('#employees-table tbody').html(response);
+            },
+            error: function(error) {
+                console.error("Error fetching filtered data:", error);
+            }
+        });
+    }
+
+    function updateQueryStringParameter(uri, key, value) {
+        var re = new RegExp("([?&])" + key + "=.*?(&|$)", "i");
+        var separator = uri.indexOf('?') !== -1 ? "&" : "?";
+        if (uri.match(re)) {
+            return uri.replace(re, '$1' + key + "=" + value + '$2');
+        }
+        else {
+            return uri + separator + key + "=" + value;
+        }
+    }
+
+    $(document).ready(function() {
+        var onlyManagers = getQueryStringParameter('onlyManagers');
+        $('#onlyManagers').prop('checked', onlyManagers === 'true');
+    });
+
+    function getQueryStringParameter(name) {
+        name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+        var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+            results = regex.exec(location.search);
+        return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+    }
+
+    function changePage(direction) {
+        // JavaScript to handle pagination
+        // You would typically make an AJAX call to fetch the next/previous set of data
+    }
+        // Assuming you have a function to fetch employee data, you can replace this example data
+    var exampleEmployeeData = {
+        12345: { firstName: "John", lastName: "Doe", /* other fields */ },
+        // ... other example employee data ...
+    };
+
+    function openEditDialog(empNo) {
+        console.log("Opening modal for employee:", empNo); // Debugging line
+        // ... rest of the function ...
+        $.ajax({
+                url: '/get_employee_data/' + empNo,
+                type: 'GET',
+                success: function(data) {
+                    // Assuming 'data' is a JSON object containing employee info
+                    $('#editEmpNo').val(data.emp_no);
+                    $('#editFirstName').val(data.first_name);
+                    $('#editLastName').val(data.last_name);
+                    $('#editTitle').val(data.title);
+                    $('#editSalary').val(data.salary);  // Populate the salary field
+                    $('#editDept').val(data.dept_name);
+                    // Populate other fields...
+
+                     $.ajax({
+                            url: '/departments/list',
+                            type: 'GET',
+                            success: function(departments) {
+                                var deptDropdown = $('#editDept'); // The ID of your department dropdown
+                                deptDropdown.empty();
+                                departments.forEach(function(dept) {
+                                    deptDropdown.append($('<option>', {
+                                        value: dept.dept_no,
+                                        text: dept.dept_name,
+                                        selected: dept.dept_no === data.dept_no
+                                    }));
+                                });
+                            },
+                            error: function(error) {
+                                console.error("Error fetching departments:", error);
+                            }
+                     });
+
+                    $('#editModal').show();
+                },
+                error: function(error) {
+                    // Error handling
+                    console.error("Error fetching employee data:", error);
+                }
+        });
+       // Open the modal as a sliding panel
+        document.getElementById("editModal").style.display = "block"; // Same as the modal's width in CSS
+         document.getElementById("pageOverlay").style.display = "block"; // Show the overlay
+    }
+
+
+    // Function to close the modal
+    function closeModal() {
+        document.getElementById("editModal").style.display = "none"; // Close the panel
+         document.getElementById("pageOverlay").style.display = "none"; // Show the overlay
+    }
+
+    function saveEmployeeData() {
+        event.preventDefault();
+    var empNo = $('#editEmpNo').val();
+    var updatedData = {
+        first_name: $('#editFirstName').val(),
+        last_name: $('#editLastName').val(),
+        dept_no: $('#editDept').val(),  // Include the department name
+        title: $('#editTitle').val(),  // The title input field value
+        new_salary: $('#editSalary').val(),  // Include the new salary
+        from_date: new Date().toISOString().split('T')[0],  // Today's date in YYYY-MM-DD format
+        to_date: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0]  // One year from now
+        // ...
+    };
+
+    $.ajax({
+        url: '/update_employee/' + empNo,
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(updatedData),
+        success: function(response) {
+            $('#editModal').hide();
+            location.reload(); // Refresh or update the table accordingly
+        },
+        error: function(error) {
+            console.error("Error updating employee data:", error);
+        }
+    });
+}
+
+
+    function performSearch(query) {
+        if (query.length < 3) { // Optionally set a minimum number of characters before searching
+            return; // Skip the search if the query is too short
+        }
+
+        $.ajax({
+            url: "{{ url_for('employees') }}",
+            type: "GET",
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }, // Add this header
+            data: { search: query,
+                    sort_by: sort_by,
+                    direction: direction},
+            success: function(data) {
+                // Replace the table body with the filtered data
+                // Assuming the server sends back a list of filtered employees in HTML format
+                $('#employees-table tbody').html(data);
+            },
+            error: function(error) {
+                // Handle errors here, such as displaying a message to the user
+                console.error("Search failed:", error);
+            }
+        });
+    }
+
+    // Close the modal if the user clicks anywhere outside of it
+    // window.onclick = function(event) {
+    //     if (event.target === "modal") {
+    //         closeModal();
+    //     }
+    // }
+</script>
+
+
+<!-- Right-side panel (modal) -->
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <div class="modal-body">
+            <div class="avatar-flip-container">
+                <div class="avatar-flipper">
+                    <div class="avatar-front">
+                        <img src="https://static.thenounproject.com/png/5034901-200.png" alt="Avatar" class="avatar">
+                    </div>
+                    <div class="avatar-back">
+                        ID: <span id="employee_id"> </span>
+                    </div>
+                </div>
+            </div>
+
+            <h2>Edit Employee</h2>
+
+            <form id="editForm" class="edit-form">
+                <input type="text" id="editEmpNo" name="first_name" style="display: none">
+                <div class="form-group">
+                    <label for="editFirstName">First Name:</label>
+                    <input type="text" id="editFirstName" name="first_name">
+                </div>
+                <div class="form-group">
+                    <label for="editLastName">Last Name:</label>
+                    <input type="text" id="editLastName" name="last_name">
+                </div>
+                <div class="form-group">
+                    <label for="editTitle">Title:</label>
+                    <input type="text" id="editTitle" name="title">
+                </div>
+                <div class="form-group">
+                    <label for="editSalary">Salary:</label>
+                    <input type="number" id="editSalary" name="salary">
+                </div>
+                <div class="form-group">
+                    <label for="editDept">Department:</label>
+                    <select id="editDept" name="department">
+                        <!-- Options added dynamically -->
+                    </select>
+                </div>
+                <button type="submit" class="save-button" onclick="saveEmployeeData()">Save Changes</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="ajaxSpinnerContainer" class="ajax-spinner-container">
+    <div class="dot-spinner">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+    </div>
+</div>
+
+<!--<div id="ajaxSpinnerContainer" class="ajax-spinner-container">-->
+<!--    <div class="ajax-spinner"></div>-->
+<!--</div>-->
+
+
+
+
+</body>
+</html>

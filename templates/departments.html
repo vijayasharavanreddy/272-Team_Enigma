@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Departments</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='department.css') }}">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+</head>
+<body>
+    <div class="header">
+        <h1>Departments</h1>
+    </div>
+    <div class="container">
+        <table class="table-style">
+            <thead>
+                <tr>
+                    <th>Department Name</th>
+                    <th>Manager Employee Number</th>
+                    <th>Manager Name</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for dept_no, dept_name, emp_no, first_name, last_name in departments %}
+                <tr>
+                    <td>{{ dept_name }}</td>
+                    <td>{{ emp_no }}</td>
+                    <td>{{ first_name }} {{ last_name }}</td>
+                    <td><button onclick="openEditDepartmentPanel('{{ dept_no }}', '{{ dept_name }}')">Edit</button></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="container">
+        <a href="{{ url_for('dashboard') }}" class="back-button">Back to Dashboard</a>
+    </div>
+    <script>
+        $(document).ajaxStart(function() {
+            $("#ajaxSpinnerContainer").show();
+        }).ajaxStop(function() {
+            $("#ajaxSpinnerContainer").hide();
+        });
+
+        function openEditDepartmentPanel(deptNo, deptName) {
+
+             // AJAX request to fetch manager history for this department
+            $.ajax({
+        url: '/department_manager_history/' + deptNo,
+        type: 'GET',
+        success: function(data) {
+            // Clear existing timeline entries
+            const timeline = $('#managerTimeline');
+            timeline.empty();
+            $('#editDeptName').val(deptName); // Assuming you have an input field for department name
+
+            // Populate the timeline with data
+            data.forEach(function(entry, index) {
+                // Determine if the item is the last in the list
+                const isLastItem = index === data.length - 1;
+                const timelineItem = `
+                    <li class="timeline-item ${isLastItem ? 'last-item' : ''}">
+                        <div class="timeline-badge">${index + 1}</div>
+                        <div class="timeline-panel">
+                            <div class="timeline-heading">
+                                <h4 class="timeline-title">${entry.name}</h4>
+                                <p><small class="text-muted">${entry.from_date} - ${entry.to_date}</small></p>
+                            </div>
+                            <div class="timeline-body">
+                                <p>Emp No: ${entry.emp_no}</p>
+                            </div>
+                        </div>
+                    </li>
+                `;
+                timeline.append(timelineItem);
+            });
+
+            // Show the edit department panel
+            $('#editDepartmentPanel').show();
+        },
+        error: function(error) {
+            console.error("Error fetching manager history:", error);
+        }
+    });
+
+            document.getElementById('editDeptNo').value = deptNo;
+
+            // Show the panel
+            document.getElementById('editDepartmentPanel').style.display = 'block';
+        }
+
+        function closeEditDepartmentPanel() {
+            document.getElementById('editDepartmentPanel').style.display = 'none';
+        }
+
+        function saveDepartmentData() {
+            var deptName = document.getElementById('editDeptName').value;
+
+            var selectedEmpNo = $('#selectedEmpNo').val(); // Retrieve the selected employee number
+            const deptNo = $('#editDeptNo').val(); // The department number
+
+            // Prepare the data to be sent to the backend
+            const data = {
+                emp_no: selectedEmployeeNo,
+                dept_no: deptNo,
+                from_date: new Date().toISOString().split('T')[0], // Today's date in YYYY-MM-DD format
+                to_date: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0] // One year from now
+            };
+
+            // Make an AJAX POST request to the backend
+            $.ajax({
+                url: '/update_department_manager', // The URL to your backend endpoint
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function(response) {
+                    alert('Department manager updated successfully');
+                    // Any additional success logic
+                },
+                error: function(xhr, status, error) {
+                    alert('Error updating department manager: ' + error);
+                    // Any additional error handling logic
+                }
+            });
+
+            closeEditDepartmentPanel();
+        }
+
+        let currentSearchPage = 1;
+        let searchQuery = '';
+        const perPage = 10;
+
+        function searchManager(query) {
+            if (query.length < 3) {
+                return; // Minimum character length for search
+            }
+            searchQuery = query;
+            currentSearchPage = 1; // Reset to the first page for a new search
+            $('#manager-results').empty(); // Clear previous results
+            fetchSearchResults(query, currentSearchPage);
+        }
+
+        function fetchSearchResults(query, page) {
+            $.ajax({
+                url: '/api/search_employees',
+                data: { query: query, page: page, per_page: perPage },
+                success: function(data) {
+                    data.employees.forEach(employee => {
+                          $('#manager-results').append(`<div class="employee-item" data-emp-no="${employee.emp_no}">${employee.first_name} ${employee.last_name}</div>`);
+                    });
+                    if (data.has_more) {
+                        $('#manager-results').append(`<div class="load-more" onclick="loadMoreResults()">Load more...</div>`);
+                    }
+                },
+                error: function(error) {
+                    console.error("Error fetching search results:", error);
+                }
+            });
+        }
+
+        $(document).on('click', '.employee-item', function() {
+            const selectedEmpNo = $(this).data('emp_no');
+            const selectedName = $(this).text(); // Get the employee's name displayed in the dropdown
+
+            $('#selectedEmpNo').val(selectedEmpNo); // Set the value of the hidden input
+            $('#manager-search').val(selectedName); // Update the search input field with the selected name
+
+            $('#manager-results').empty(); // Clear and hide the results dropdown
+            $('#manager-results').hide(); // You can also use this to hide the dropdown
+        });
+
+
+        function loadMoreResults() {
+            $('.load-more').remove(); // Remove the "Load more" button
+            currentSearchPage++; // Increment the page number
+            fetchSearchResults(searchQuery, currentSearchPage);
+        }
+
+        $('#manager-results').on('scroll', function() {
+        if ($(this).scrollTop() + $(this).innerHeight() >= $(this)[0].scrollHeight) {
+            loadMoreResults();
+        }
+});
+
+    </script>
+
+<div id="editDepartmentPanel" class="department-modal">
+    <div class="department-modal-content">
+        <span class="close" onclick="closeEditDepartmentPanel()">&times;</span>
+<!--        <h2>About Department</h2>-->
+
+            <!-- Timeline for department manager history -->
+<!--            <div id="managerTimeline" class="timeline"></div>-->
+        <ul id="managerTimeline" class="timeline"></ul>
+        <div class="form-content-wrapper">
+            <form id="editDepartmentForm">
+                <div class="form-group">
+                    <label for="editDeptName">Department Name:</label>
+                    <input type="text" id="editDeptName">
+                </div>
+                <label for="manager-search">Manager:</label>
+                <input type="text" id="manager-search" placeholder="Search for manager..." oninput="searchManager(this.value)">
+                <div id="manager-results" class="manager-results"></div>
+                <!-- Add other fields as necessary -->
+                 <input type="hidden" id="editDeptNo" name="deptNo">
+                <input type="hidden" id="selectedEmpNo" name="selectedEmpNo">
+                <button type="button" onclick="saveDepartmentData()">Save Changes</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
