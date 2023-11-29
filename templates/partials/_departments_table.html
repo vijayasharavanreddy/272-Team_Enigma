@@ -1,0 +1,12 @@
+{% for department in departments %}
+<tr>
+    <td>{{ department.dept_name }}</td>
+    <td>{{ department.emp_no }}</td>
+    <td>{{ department.first_name }} {{ department.last_name }}</td>
+    <td><button onclick="openEditDepartmentPanel('{{ department.dept_no }}', '{{ department.dept_name }}')">Edit</button></td>
+    <td>
+        <!-- Add a delete button with an onclick event -->
+        <button class="del-btn" onclick="confirmDeleteDepartment('{{ department.dept_no }}')">Delete</button>
+    </td>
+</tr>
+{% endfor %}

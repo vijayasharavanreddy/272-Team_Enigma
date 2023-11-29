@@ -45,6 +45,8 @@ class Department(db.Model):
     __tablename__ = 'departments'
     dept_no = db.Column(db.String(4), primary_key=True)
     dept_name = db.Column(db.String(40), nullable=False)
+    managers = db.relationship('Dept_Manager', cascade='all, delete-orphan')
+    employees = db.relationship('Dept_Emp', cascade='all, delete-orphan')
 
 class Dept_Emp(db.Model):
     __tablename__ = 'dept_emp'

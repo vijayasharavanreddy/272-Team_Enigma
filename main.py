@@ -1,3 +1,5 @@
+import random
+import string
 from datetime import datetime
 
 from flask import Flask, request, jsonify
@@ -332,17 +334,73 @@ def departments_list():
 @app.route('/departments')
 @login_required
 def departments():
+    # Subquery to get the latest dept_manager entry for each department
+    latest_dept_managers_subquery = db.session.query(
+        Dept_Manager.dept_no,
+        func.max(Dept_Manager.from_date).label('latest_from_date')
+    ).group_by(Dept_Manager.dept_no).subquery()
+
+    # Join the subquery with Department, Dept_Manager, and Employee
     departments = db.session.query(
         Department.dept_no,
         Department.dept_name,
         Dept_Manager.emp_no,
         Employee.first_name,
         Employee.last_name
-    ).join(Dept_Manager, Department.dept_no == Dept_Manager.dept_no) \
-     .join(Employee, Dept_Manager.emp_no == Employee.emp_no) \
-     .filter(Dept_Manager.to_date > datetime.now()).all()  # Assuming 'to_date' is used to determine current managers
+    ).join(latest_dept_managers_subquery, Department.dept_no == latest_dept_managers_subquery.c.dept_no) \
+        .join(Dept_Manager, (Dept_Manager.dept_no == latest_dept_managers_subquery.c.dept_no) & (
+                Dept_Manager.from_date == latest_dept_managers_subquery.c.latest_from_date)) \
+        .join(Employee, Dept_Manager.emp_no == Employee.emp_no) \
+        .filter(Dept_Manager.to_date > datetime.now()) \
+        .all()
+
+    # Check if the request is an AJAX request
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return render_template('partials/_departments_table.html', departments=departments)
 
     return render_template('departments.html', departments=departments)
+
+
+from flask import request, redirect, url_for, flash
+from models import db, Department, Dept_Manager
+
+
+
+def generate_unique_dept_no(length=3):
+    while True:
+        # Generate a random string
+        dept_no = ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))
+
+        # Check if this dept_no already exists in the database
+        existing_dept = Department.query.filter_by(dept_no="d" + dept_no).first()
+        if not existing_dept:
+            return "d"+ dept_no  # Unique dept_no found
+
+@login_required
+@app.route('/add_department', methods=['POST'])
+def add_department():
+    data = request.get_json()
+    dept_name = data.get('deptName')
+    dept_description = data.get('deptDescription')  # Modify as per your model
+    manager_emp_no = data.get('empNo')
+
+    # Generate a unique department number
+    unique_dept_no = generate_unique_dept_no()
+    print(unique_dept_no)
+
+    # Create a new department
+    new_department = Department(dept_no = unique_dept_no, dept_name=dept_name)  # Modify as per your model
+    db.session.add(new_department)
+    db.session.commit()
+
+    # Assign manager to the new department
+    new_dept_manager = Dept_Manager(emp_no=manager_emp_no, dept_no=new_department.dept_no, from_date=datetime.now(), to_date=datetime(datetime.now().year + 1, 1, 1))  # Modify as per your model
+    db.session.add(new_dept_manager)
+    db.session.commit()
+
+    flash('New department added successfully.')
+    return redirect(url_for('departments'))
+
 
 @login_required
 @app.route('/department_manager_history/<dept_no>', methods=['GET'])
@@ -377,7 +435,7 @@ def update_department_manager():
     to_date = datetime.strptime(data.get('to_date'), '%Y-%m-%d').date()
 
     # Check for existing dept_manager entry
-    existing_dept_manager = Dept_Manager.query.filter_by(emp_no=emp_no, dept_no=dept_no, from_date=from_date,
+    existing_dept_manager = Dept_Manager.query.filter_by( dept_no=dept_no, from_date=from_date,
                                                         to_date=to_date).first()
 
     if existing_dept_manager:
@@ -389,7 +447,7 @@ def update_department_manager():
         db.session.add(new_dept_manager)
 
     # Check for existing dept_emp entry
-    existing_dept_emp = Dept_Emp.query.filter_by(emp_no=emp_no, dept_no=dept_no, from_date=from_date,
+    existing_dept_emp = Dept_Emp.query.filter_by(dept_no=dept_no, from_date=from_date,
                                                 to_date=to_date).first()
 
     if existing_dept_emp:
@@ -407,6 +465,23 @@ def update_department_manager():
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
+
+@login_required
+@app.route('/delete/department/<dept_no>', methods=['DELETE'])
+def delete_department(dept_no):
+    # Delete related records in dept_manager and dept_emp
+    Dept_Manager.query.filter_by(dept_no=dept_no).delete()
+    Dept_Emp.query.filter_by(dept_no=dept_no).delete()
+
+    # Now delete the department
+    department = Department.query.get(dept_no)
+    if department:
+        db.session.delete(department)
+        db.session.commit()
+        return "Department deleted successfully"
+    else:
+        return "Department not found"
+
 
 
 if __name__ == '__main__':

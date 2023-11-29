@@ -470,7 +470,7 @@ th {
     background: #28a745; /* Green background for the last item */
 }
 
-.department-modal {
+.department-modal{
     display: none; /* Hidden by default */
     position: fixed;
     z-index: 1000; /* High z-index to be on top */
@@ -483,10 +483,22 @@ th {
     padding-top: 50px; /* Space from the top */
 }
 
-.department-modal-content {
+.department-modal-content, .department2-modal-content {
     width: 50%; /* Half-page size */
     min-width: 300px; /* Minimum width */
     max-width: 600px; /* Maximum width */
+    margin: 5% auto !important; /* Centering */
+    overflow: hidden; /* Clear floats */
+    position: relative; /* For positioning the close button */
+    padding: 20px;
+    background: #FFF;
+    border-radius: 4px;
+}
+
+.department2-modal-content {
+    /*width: 50%; !* Half-page size *!*/
+    min-width: 300px; /* Minimum width */
+    max-width: 500px; /* Maximum width */
     margin: 5% auto !important; /* Centering */
     overflow: hidden; /* Clear floats */
     position: relative; /* For positioning the close button */
@@ -581,6 +593,20 @@ th {
     background-color: rgba(0, 0, 0, 0.5);
 }
 
+.department2-modal {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    z-index: 10;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
 .department-modal-content {
     background-color: #fefefe;
     margin: auto;
@@ -645,7 +671,7 @@ button:hover {
 
 /* Add responsive behavior */
 @media (max-width: 768px) {
-    .department-modal-content {
+    .department-modal-content, .department2-modal-content {
         flex-direction: column;
     }
 
@@ -669,7 +695,7 @@ button:hover {
     flex: 1; /* Take up the remaining space */
 }
 
-.department-modal-content {
+.department-modal-content{
     /* ... existing styles ... */
     display: flex; /* Set display to flex */
     align-items: stretch; /* Make children of .department-modal-content fill the container */
@@ -761,6 +787,46 @@ button {
 
 .load-more:hover {
     text-decoration: underline;
+}
+
+.del-btn{
+    background-color: grey;
+}
+
+.del-btn:hover {
+    background-color: darkred;
+}
+
+
+.department2-modal button {
+    padding: 10px 20px;
+    margin-right: 10px;
+    border: none;
+    border-radius: 4px;
+    background-color: #5cb85c; /* Green color */
+    color: white;
+    cursor: pointer;
+    width: 40%;
+    display: inline;
+}
+
+.department2-modal button:hover {
+    background-color: #4cae4c; /* Darker green */
+}
+
+/* Style for the cancel button */
+.department2-modal button:last-child {
+    background-color: #d9534f; /* Red color */
+}
+
+.department2-modal button:last-child:hover {
+    background-color: #c9302c; /* Darker red */
+}
+
+p {
+    margin: 20px 0;
+    font-size: 16px;
+    line-height: 1.6;
 }
 
 
