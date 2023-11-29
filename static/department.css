@@ -798,7 +798,7 @@ button {
 }
 
 
-.department2-modal button {
+.department2-modal button, .add-dept-form-btn {
     padding: 10px 20px;
     margin-right: 10px;
     border: none;
@@ -827,6 +827,139 @@ p {
     margin: 20px 0;
     font-size: 16px;
     line-height: 1.6;
+}
+
+.department-modal2 {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 2; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0,0,0,0.6); /* Black with opacity */
+}
+
+.department-modal2-content {
+    background-color: #fff;
+    margin: 10% auto; /* 10% from the top and centered */
+    padding: 20px;
+    border-radius: 8px;
+    width: 30%; /* Width */
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+
+.department-modal2 h2 {
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.form-content-wrapper2 {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group2 {
+    margin-bottom: 15px;
+}
+
+.form-group2 label {
+    display: block;
+    margin-bottom: 5px;
+    color: #555;
+}
+
+.form-group2 input[type="text"] {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.add-dept-form-btn {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    margin-right: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    color: #fff;
+    background-color: #007bff; /* Primary color */
+}
+
+.add-dept-form-btn:last-child {
+    background-color: #dc3545; /* Secondary color */
+}
+
+.add-dept-form-btn:hover {
+    opacity: 0.9;
+}
+
+.manager-results {
+    /*display: none;*/
+    margin-top: 10px;
+    max-height: 150px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 5px;
+    max-width: 470px;
+}
+
+.manager-results .employee-item {
+    padding: 5px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+}
+
+.manager-results .employee-item:hover {
+    background-color: #f8f9fa;
+}
+
+.navbar {
+    background-color: #f8f9fa;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #e7e7e7;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    min-height: 100px;
+}
+
+.navbar h1 {
+    margin: 0;
+    flex-grow: 1;
+    text-align: center;
+}
+
+#addDepartmentButton, .back-button {
+    padding: 8px 15px;
+    margin: 0 5px;
+    border: none;
+    border-radius: 4px;
+    text-decoration: none;
+    color: white;
+    background-color: #007bff;
+    cursor: pointer;
+    max-width: 200px;
+    transition: background-color 0.3s ease;
+}
+
+#addDepartmentButton:hover, .back-button:hover {
+    background-color: #0056b3;
+}
+
+.back-button {
+    background-color: #6c757d;
+    order: -1; /* Move to the beginning of the flex container */
+}
+
+.back-button:hover {
+    background-color: #5a6268;
 }
 
 

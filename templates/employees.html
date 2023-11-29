@@ -7,8 +7,20 @@
 </head>
 <body>
 <div id="pageOverlay" class="overlay"></div>
-    <div class="header">
+<!--    <div class="header">-->
+<!--        <h1>Employees</h1>-->
+<!--    </div>-->
+    <div class="navbar">
+        <a href="{{ url_for('dashboard') }}" class="back-button">Back to Dashboard</a>
         <h1>Employees</h1>
+         <div class="manager-toggle">
+            <label class="switch">
+                <input type="checkbox" id="onlyManagers" name="onlyManagers" onchange="filterManagers()">
+                <span class="slider round"></span>
+            </label>
+            <span id="only-manager-toggle-text">Only Managers</span>
+        </div>
+        <button id="addEmployeeButton" onclick="">Add New Employee</button>
     </div>
     <div class="search-container">
         <form method="GET" action="{{ url_for('employees') }}" class="search-form">
@@ -16,13 +28,13 @@
             <button type="submit" class="search-button">Search</button>
         </form>
 
-        <div class="manager-toggle">
-            <label class="switch">
-                <input type="checkbox" id="onlyManagers" name="onlyManagers" onchange="filterManagers()">
-                <span class="slider round"></span>
-            </label>
-            <span>Only Managers</span>
-        </div>
+<!--        <div class="manager-toggle">-->
+<!--            <label class="switch">-->
+<!--                <input type="checkbox" id="onlyManagers" name="onlyManagers" onchange="filterManagers()">-->
+<!--                <span class="slider round"></span>-->
+<!--            </label>-->
+<!--            <span>Only Managers</span>-->
+<!--        </div>-->
 
     </div>
     <div  class="container">
@@ -60,7 +72,7 @@
 
             {% endif %}
         </div>
-         <a href="{{ url_for('dashboard') }}" class="back-button">Back to Dashboard</a>
+<!--         <a href="{{ url_for('dashboard') }}" class="back-button">Back to Dashboard</a>-->
     </div>
 
     <script>

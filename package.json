@@ -1,0 +1,19 @@
+{
+  "name": "hrm",
+  "version": "1.0.0",
+  "description": "hr management app",
+  "main": "main.py",
+  "scripts": {
+    "test": "python3 main.py"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shiva-vardhineedi/272-hrm.git"
+  },
+  "author": "team-code-heist",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/shiva-vardhineedi/272-hrm/issues"
+  },
+  "homepage": "https://github.com/shiva-vardhineedi/272-hrm#readme"
+}

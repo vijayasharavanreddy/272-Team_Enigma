@@ -752,6 +752,61 @@ input:checked + .slider:before {
 }
 
 
+.navbar {
+    background-color: #f8f9fa;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #e7e7e7;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    min-height: 100px;
+}
+
+.navbar h1 {
+    margin: 0;
+    flex-grow: 1;
+    text-align: center;
+}
+
+#addEmployeeButton, .manager-toggle, .back-button {
+    padding: 8px 15px;
+    margin: 0 5px;
+    border: none;
+    border-radius: 4px;
+    text-decoration: none;
+    color: white;
+    background-color: #007bff;
+    cursor: pointer;
+    max-width: 200px;
+    transition: background-color 0.3s ease;
+}
+
+.manager-toggle {
+    /*margin-left: 10px;*/
+    background-color: unset;
+    color: black;
+}
+
+#only-manager-toggle-text {
+    margin-left: 10px;
+}
+
+#addEmployeeButton:hover, .back-button:hover {
+    background-color: #0056b3;
+}
+
+.back-button {
+    background-color: #6c757d;
+    order: -1; /* Move to the beginning of the flex container */
+}
+
+.back-button:hover {
+    background-color: #5a6268;
+}
+
+
+
 
 
 

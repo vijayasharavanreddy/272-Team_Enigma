@@ -6,13 +6,19 @@
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 </head>
 <body>
-    <div class="header">
-        <h1>Departments</h1>
+<!--    <div class="header">-->
+<!--        <h1>Departments</h1>-->
+<!--    </div>-->
+    <div id="pageOverlay" class="overlay"></div>
+    <div class="navbar">
+            <a href="{{ url_for('dashboard') }}" class="back-button">Back to Dashboard</a>
+            <h1>Departments</h1>
+        <button id="addDepartmentButton" onclick="showAddDepartmentForm()">Add New Department</button>
     </div>
     <div class="container">
         <!-- Button to show the add department form -->
-        <button id="addDepartmentButton" onclick="showAddDepartmentForm()">Add New Department</button>
-        <table class="table-style">
+<!--        <button id="addDepartmentButton" onclick="showAddDepartmentForm()">Add New Department</button>-->
+        <table class="table-style" id="department-table">
             <thead>
                 <tr>
                     <th>Department Name</th>
@@ -26,9 +32,9 @@
         </table>
     </div>
 
-    <div class="container">
-        <a href="{{ url_for('dashboard') }}" class="back-button">Back to Dashboard</a>
-    </div>
+<!--    <div class="container">-->
+<!--&lt;!&ndash;        <a href="{{ url_for('dashboard') }}" class="back-button">Back to Dashboard</a>&ndash;&gt;-->
+<!--    </div>-->
     <script>
         $(document).ajaxStart(function() {
             $("#ajaxSpinnerContainer").show();
@@ -37,7 +43,7 @@
         });
 
         function openEditDepartmentPanel(deptNo, deptName) {
-
+            $('#manager-results').empty();
              // AJAX request to fetch manager history for this department
             $.ajax({
         url: '/department_manager_history/' + deptNo,
@@ -84,6 +90,12 @@
         }
 
         function closeEditDepartmentPanel() {
+             $('#manager-search').val('');
+                    $('#selectedEmpNo').val('');
+
+                    // Optionally hide the edit department panel
+                    $('#editDepartmentPanel').hide();
+                    $('#manager-results').empty();
             document.getElementById('editDepartmentPanel').style.display = 'none';
         }
 
@@ -135,7 +147,7 @@
                 type: 'GET',
                 success: function(response) {
                     // Assuming 'response' contains the updated HTML for the departments table
-                    $('.container table').html(response);
+                    $('#department-table tbody').html(response);
                 },
                 error: function(error) {
                     console.error("Error fetching departments data:", error);
@@ -328,25 +340,25 @@
 
 
 <!-- Hidden form for adding a new department -->
-<div id="addDepartmentPanel" class="department-modal" style="display: none;">
-    <div class="department-modal-content">
+<div id="addDepartmentPanel" class="department-modal2" style="display: none;">
+    <div class="department-modal2-content">
         <span class="close" onclick="closeAddDepartmentPanel()">&times;</span>
         <h2>Add Department</h2>
 
-        <div class="form-content-wrapper">
+        <div class="form-content-wrapper2">
             <form id="addDepartmentForm">
-                <div class="form-group">
+                <div class="form-group2">
                     <label for="newDeptName">Department Name:</label>
                     <input type="text" id="newDeptName" name="newDeptName" required>
                 </div>
-                <div class="form-group">
+                <div class="form-group2">
                     <label for="newManagerSearch">Manager:</label>
                     <input type="text" id="newManagerSearch" placeholder="Search for manager..." oninput="searchNewManager(this.value)">
                     <div id="newManagerResults" class="manager-results"></div>
                 </div>
                 <input type="hidden" id="newSelectedEmpNo" name="newSelectedEmpNo">
-                <button type="button" onclick="submitAddDepartmentForm()">Add</button>
-                <button type="button" onclick="closeAddDepartmentPanel()">Cancel</button>
+                <button class="add-dept-form-btn" type="button" onclick="submitAddDepartmentForm()">Add</button>
+                <button class="add-dept-form-btn" type="button" onclick="closeAddDepartmentPanel()">Cancel</button>
             </form>
         </div>
     </div>
