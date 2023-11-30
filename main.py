@@ -65,6 +65,11 @@ def user_loader(user_id):
         return user_model
     return None
 
+
+@app.route('/')
+def home():
+    return render_template('home.html')
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     session['server_start_identifier'] = app.config['SERVER_START_IDENTIFIER']
@@ -121,7 +126,7 @@ def dashboard():
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('login'))
+    return redirect(url_for('home'))
 
 # @app.before_first_request
 # def clear_session_on_restart():
@@ -481,6 +486,40 @@ def delete_department(dept_no):
         return "Department deleted successfully"
     else:
         return "Department not found"
+
+@app.route('/department_histogram')
+@login_required
+def department_histogram():
+    # SQL query to count the number of employees in each department
+    department_counts = db.session.query(
+        Department.dept_name,
+        func.count(Dept_Emp.emp_no).label('employee_count')
+    ).join(Dept_Emp, Department.dept_no == Dept_Emp.dept_no) \
+     .group_by(Department.dept_name) \
+     .all()
+
+    # Prepare data for the histogram
+    dept_names = [dept[0] for dept in department_counts]
+    emp_counts = [dept[1] for dept in department_counts]
+
+    return jsonify(department_names=dept_names, employee_counts=emp_counts)
+
+@app.route('/salary_ranges_pie_chart')
+@login_required
+def salary_ranges_pie_chart():
+    # Define your salary ranges
+    ranges = [(0, 30000), (30000, 60000), (60000, 90000), (90000, 120000),(120000,300000)]
+    range_labels = ["0-30k", "30k-60k", "60k-90k","90-120k",">120k"]
+    counts = []
+
+    for salary_range in ranges:
+        count = db.session.query(func.count(Salary.emp_no)).filter(
+            Salary.salary >= salary_range[0],
+            Salary.salary < salary_range[1]
+        ).scalar()
+        counts.append(count)
+
+    return jsonify(labels=range_labels, data=counts)
 
 
 

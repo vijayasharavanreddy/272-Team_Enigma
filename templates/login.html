@@ -7,7 +7,7 @@
             color: red;
         }
     </style>
-     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='login-style.css') }}">
     <script>
         window.onload = function() {
             setTimeout(function() {
@@ -20,6 +20,30 @@
     </script>
 </head>
 <body>
+     <nav id="navbar">
+            <a href="/" >Home</a>
+            <a href="/#about">About Us</a>
+            <a href="/#contact">Contact Us</a>
+<!--            <a href="">Login</a>-->
+    </nav>
+    <div class="keyword-background">
+           <span class="keyword1">HR</span>
+           <span class="keyword2">Management</span>
+           <span class="keyword3">Human Resources</span>
+           <span class="keyword4">Employee</span>
+           <span class="keyword5">Payroll</span>
+           <span class="keyword6">Recruitment</span>
+           <span class="keyword7">Training</span>
+           <span class="keyword8">Development</span>
+            <span class="keyword9">Benefits</span>
+           <span class="keyword10">Compensation</span>
+           <span class="keyword11">Talent Management</span>
+           <span class="keyword12">Performance</span>
+           <span class="keyword13">Succession</span>
+           <span class="keyword14">Engagement</span>
+           <span class="keyword15">Analytics</span>
+           <!-- Add more keyword spans as desired -->
+    </div>
    {% with messages = get_flashed_messages() %}
       {% if messages %}
         <div id="flash-message" class="flash-message">
@@ -29,6 +53,7 @@
         </div>
       {% endif %}
     {% endwith %}
+
     <form action="/login" method="post" style="padding-top: 5%">
             <!-- Login form fields -->
             <div class="form-group">
@@ -40,9 +65,10 @@
                 <input type="password" id="password" name="password" required>
             </div>
             <button type="submit">Login</button>
+            <p class="register-link">
+                New here? <a href="{{ url_for('register') }}">Register now</a>.
+            </p>
         </form>
-        <p class="register-link">
-            New here? <a href="{{ url_for('register') }}">Register now</a>.
-        </p>
+
 </body>
 </html>

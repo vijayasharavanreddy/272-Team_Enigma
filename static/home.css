@@ -1,0 +1,217 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+nav {
+    background-color: #333;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    position: fixed;
+    width: 98%;
+    top: 0;
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+nav a {
+    color: white;
+    padding: 5px 15px;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+nav a:hover, nav a:focus {
+    color: #ddd;
+}
+
+header {
+    background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
+    color: black;
+    padding-top: 60px; /* Adjust based on your navbar height */
+    text-align: center;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+header h1 {
+    font-size: 3em;
+    color: white;
+}
+
+.hero-text p {
+    color: #f8f8f8;
+    max-width: 600px;
+    text-align: center;
+    font-size: 1.2em;
+    margin-top: 20px;
+}
+
+section {
+    padding: 60px 20px;
+    text-align: center;
+}
+
+footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 20px 0;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+}
+
+.emojis {
+    margin-top: 40px;
+    position: relative;
+    height: 100px;
+    overflow: hidden;
+}
+
+.emoji {
+    margin-top: 14px;
+    display: inline-block;
+    font-size: 2rem;
+    animation: floatEmoji 10s ease-in-out infinite;
+}
+
+@keyframes floatEmoji {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+}
+
+@media only screen and (max-width: 600px) {
+    nav a, footer p {
+        font-size: 0.9em;
+    }
+
+    header h1 {
+        font-size: 2em;
+    }
+}
+
+/* Additional animations for scrolling into view */
+[data-animate] {
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out, visibility 0.6s;
+}
+
+[data-animate].in-view {
+    visibility: visible;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Smooth scrolling for anchor links */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Add this to your existing CSS file */
+.emoji-container {
+    flex: 0 0 50px; /* Adjust the width as needed */
+    font-size: 16em; /* Adjust size as needed */
+    padding-right: 20px; /* Gives some space between the emoji and the text */
+}
+
+.emoji-large {
+    display: block; /* Makes the emoji take up the full width of .emoji-container */
+}
+
+.about-text {
+    flex: 1; /* Takes up the remaining space */
+    padding-left: 20px; /* Matches the padding-right of .emoji-container */
+}
+
+/* Ensure that the layout doesn't break on smaller screens */
+@media (max-width: 768px) {
+    #about {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .emoji-container {
+        padding-right: 0;
+        padding-bottom: 20px; /* Adds space between the emoji and the text on smaller screens */
+    }
+
+    .about-text {
+        padding-left: 0;
+    }
+}
+
+/* Contact Form Styling */
+.about-text {
+    max-width: 600px; /* Set a max-width for the form */
+    margin: 0 auto; /* Center align the form */
+    background: #f9f9f9; /* Light background for the form */
+    padding: 2em;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.about-text h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 1em;
+}
+
+.about-text form {
+    display: flex;
+    flex-direction: column;
+}
+
+.about-text input[type="text"],
+.about-text input[type="email"],
+.about-text textarea {
+    font-size: 1em;
+    padding: 0.75em;
+    margin-bottom: 1em;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.about-text input[type="text"]:focus,
+.about-text input[type="email"]:focus,
+.about-text textarea:focus {
+    border-color: #007bff; /* Highlight color when focused */
+}
+
+.about-text textarea {
+    resize: vertical; /* Allows only vertical resizing */
+    min-height: 150px;
+}
+
+.about-text button {
+    padding: 0.75em 1.5em;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s;
+}
+
+.about-text button:hover {
+    background-color: #0056b3; /* Darken button color on hover */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .about-text {
+        padding: 1em;
+    }
+}

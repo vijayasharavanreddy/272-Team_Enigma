@@ -2,53 +2,8 @@
 <html>
 <head>
     <title>Dashboard</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-            text-align: center;
-        }
-        .header {
-            background-color: #007bff;
-            color: white;
-            padding: 10px 0;
-            text-align: center;
-        }
-        .navbar {
-            overflow: hidden;
-            background-color: #333;
-        }
-        .navbar a {
-            float: left;
-            display: block;
-            color: white;
-            text-align: center;
-            padding: 14px 20px;
-            text-decoration: none;
-        }
-        .navbar a:hover {
-            background-color: #ddd;
-            color: black;
-        }
-        .container {
-            padding: 20px;
-        }
-        .logout-button {
-            margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        .logout-button:hover {
-            background-color: #c82333;
-        }
-    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='dashboard-style.css') }}">
 </head>
 <body>
     <div class="header">
@@ -59,15 +14,20 @@
         <a href="{{ url_for('employees') }}">Employees</a>
         <a href="{{ url_for('managers') }}">Managers</a>
         <a href="{{ url_for('departments') }}">Departments</a>
+        <a href="{{ url_for('logout') }}" id="logout-btn">Logout</a>
     </div>
 
     <div class="container">
         <h2>Hello, {{ first_name }}</h2>
-        <p>Welcome to your HR management dashboard. Here you can manage employee records, view reports, and perform other HR tasks.</p>
+        <p>Welcome to your HR management dashboard.</p>
 
-        <form action="{{ url_for('logout') }}" method="post">
-            <button type="submit" class="logout-button">Logout</button>
-        </form>
+        <div class="chart-container">
+            <canvas id="departmentHistogram"></canvas>
+        </div>
+        <div class="chart-container">
+            <canvas id="salaryRangesPieChart"></canvas>
+        </div>
     </div>
+ <script src="{{ url_for('static', filename='js/dashboard-script.js') }}"></script>
 </body>
 </html>
