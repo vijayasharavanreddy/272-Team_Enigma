@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>Registration</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='login-style.css') }}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://unpkg.com/libphonenumber-js/bundle/libphonenumber-js.min.js"></script>
     <script type="text/javascript">
@@ -31,7 +31,7 @@
 </head>
 <body>
     <div class="container">
-        <h2>User Registration</h2>
+        <h2 style="margin-left: 80px;">User Registration</h2>
         {% with messages = get_flashed_messages() %}
         {% if messages %}
             <div class="flash-messages">
@@ -73,7 +73,7 @@
             </div>
             <button type="submit">Register</button>
         </form>
-        <p class="login-link">
+        <p class="login-link" style="margin-left: 40px;">
             Already have an account? <a href="{{ url_for('login') }}">Login here</a>.
         </p>
     </div>

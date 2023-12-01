@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manager Dashboard</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='dashboard-mgr-style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="header">
+        <h1>Welcome to Manager Dashboard</h1>
+    </div>
+
+    <div class="navbar">
+        <a href="{{ url_for('employees_mgr', dept_no=dept_no) }}">Employees</a>
+        <button id="myProfileBtn" onclick="showProfileModal()">My Profile</button>
+        <a href="{{ url_for('logout') }}" id="logout-btn">Logout</a>
+    </div>
+
+    <div class="container">
+        <h2>Hello, {{ first_name }}</h2>
+        <p>Welcome to your management dashboard.</p>
+        {% if dept_name %}
+            <p>You are managing the department: <strong>{{ dept_name }}</strong></p>
+        {% else %}
+            <p>You are not managing any department.</p>
+        {% endif %}
+    </div>
+
+    <!-- Profile Modal -->
+    <div id="profileModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeProfileModal()">&times;</span>
+            <h3>Edit Profile</h3>
+            <!-- Profile Form -->
+            <form id="profileForm">
+                <!-- Form fields here -->
+                <!-- ... -->
+                <div class="form-group">
+                    <label for="first_name">First Name:</label>
+                    <input type="text" id="first_name" name="first_name" value="{{ employee.first_name }}">
+                </div>
+                <div class="form-group">
+                    <label for="last_name">Last Name:</label>
+                    <input type="text" id="last_name" name="last_name" value="{{ employee.last_name }}">
+                </div>
+                <div class="form-group">
+                    <label for="birth_date">Birth Date:</label>
+                    <input type="date" id="birth_date" name="birth_date" value="{{ employee.birth_date }}">
+                </div>
+                <div class="form-group">
+                    <label>Gender:</label>
+                    <input type="radio" id="gender_m" name="gender" value="M" {% if employee.gender == 'M' %}checked{% endif %}>
+                    <label for="gender_m">Male</label>
+                    <input type="radio" id="gender_f" name="gender" value="F" {% if employee.gender == 'F' %}checked{% endif %}>
+                    <label for="gender_f">Female</label>
+                </div>
+                <button type="button" onclick="closeProfileModal()">Cancel</button>
+                <button type="submit">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/dashboard-script-mgr.js') }}"></script>
+</body>
+</html>

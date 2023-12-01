@@ -5,6 +5,8 @@ from datetime import datetime
 from flask import Flask, request, jsonify
 from sqlalchemy import func, desc
 from sqlalchemy.orm import aliased
+from functools import wraps
+
 
 from models import db, HRUser, Title, Salary, Dept_Manager
 from flask import Flask, request, render_template, redirect, url_for, flash, session
@@ -43,7 +45,9 @@ def check_server_restart():
             session.clear()
 
 class User(UserMixin):
-    pass
+    def __init__(self, id, role):
+        self.id = id
+        self.role = role
 
 from flask_login import LoginManager
 
@@ -60,10 +64,30 @@ def unauthorized():
 def user_loader(user_id):
     user = HRUser.query.get(int(user_id))
     if user:
-        user_model = User()
+        user_model = User(user.id, user.role)
         user_model.id = user.id
         return user_model
     return None
+
+def hr_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        print(".................",current_user,".............")
+        if not current_user.is_authenticated or current_user.role != 'hr':
+            flash("You don't have permission to access the previous page.")
+            return redirect(url_for('logout'))  # Redirect to login or another appropriate page
+        return f(*args, **kwargs)
+    return decorated_function
+
+def hr_or_manager_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        print(".................",current_user,".............")
+        if not current_user.is_authenticated or current_user.role != 'hr' or current_user.role != 'manager':
+            flash("You don't have permission to access the previous page.")
+            return redirect(url_for('logout'))  # Redirect to login or another appropriate page
+        return f(*args, **kwargs)
+    return decorated_function
 
 
 @app.route('/')
@@ -78,10 +102,15 @@ def login():
         password = request.form['password']
         user = HRUser.query.filter_by(username=username).first()
         if user and user.check_password(password):
-            user_model = User()
+            user_model = User(user.id, user.role)
             user_model.id = user.id
             login_user(user_model)
-            return redirect(url_for('dashboard'))
+
+            # Redirect based on the user's role
+            if user.role == 'manager':
+                return redirect(url_for('dashboard_mgr'))
+            else:
+                return redirect(url_for('dashboard'))
         else:
             flash('Invalid username or password. If you do not have an account, please register.')
     return render_template('login.html')
@@ -106,7 +135,8 @@ def register():
                 last_name=last_name,
                 address=address,
                 email=email,
-                mobile_number=mobile_number
+                mobile_number=mobile_number,
+                role='manager'
             )
             new_user.set_password(password)
             db.session.add(new_user)
@@ -116,11 +146,75 @@ def register():
         else:
             flash('Username already exists')
     return render_template('register.html')
+
+
 @app.route('/dashboard')
+@hr_required
 @login_required
 def dashboard():
     user = HRUser.query.get(current_user.id)
     return render_template('dashboard.html', first_name=user.first_name)
+
+
+@app.route('/my_profile_mgr', methods=['GET', 'POST'])
+@login_required
+def my_profile():
+    # user_id = current_user.id
+    # user = HRUser.query.get(user_id)
+    # employee = Employee.query.filter_by(first_name=user.first_name,last_name=user.last_name).first()
+    #
+    # if request.method == 'POST':
+    #     employee.first_name = request.form['first_name']
+    #     employee.last_name = request.form['last_name']
+    #     employee.birth_date = datetime.strptime(request.form['birth_date'], '%Y-%m-%d').date()
+    #     employee.gender = request.form['gender']
+    #
+    #     db.session.commit()
+    #     flash('Profile updated successfully')
+    #     return redirect(url_for('dashboard_mgr'))
+
+    if not request.is_json:
+        return jsonify({'error': 'Invalid request format'}), 400
+
+    data = request.get_json()
+    user_id = current_user.id
+    user = HRUser.query.get(user_id)
+    employee = Employee.query.filter_by(first_name=user.first_name,last_name=user.last_name).first()
+
+    if employee:
+        employee.first_name = data['first_name']
+        employee.last_name = data['last_name']
+        employee.birth_date = datetime.strptime(data['birth_date'], '%Y-%m-%d').date()
+        employee.gender = data['gender']
+
+        db.session.commit()
+        return jsonify({'success': 'Profile updated successfully'}), 200
+    else:
+        return jsonify({'error': 'Employee not found'}), 404
+
+    # return render_template('edit_profile.html', employee=employee)
+@app.route('/dashboard_mgr')
+@login_required
+def dashboard_mgr():
+    user = HRUser.query.get(current_user.id)
+    employee = Employee.query.filter_by(first_name=user.first_name, last_name=user.last_name).first()
+    dept_no = "d001"
+
+    if employee:
+        dept_manager = Dept_Manager.query.filter_by(emp_no=employee.emp_no).first()
+        if dept_manager:
+            dept_no = dept_manager.dept_no
+            department = Department.query.filter_by(dept_no=dept_manager.dept_no).first()
+            if department:
+                dept_name = department.dept_name
+            else:
+                dept_name = "Not a manager"
+        else:
+            dept_name = "Not a manager"
+    else:
+        dept_name = "Employee not found"
+
+    return render_template('dashboard-mgr.html', employee=employee, first_name=employee.first_name, dept_name=dept_name, dept_no=dept_no)
 
 @app.route('/logout', methods=['GET', 'POST'])
 @login_required
@@ -137,6 +231,7 @@ def logout():
 
 
 @app.route('/employees')
+@hr_required
 @login_required
 def employees():
     page = request.args.get('page', 1, type=int)
@@ -191,6 +286,37 @@ def employees():
 
     return render_template('employees.html', employees=paginated_employees.items, pagination=paginated_employees, only_managers_state='true' if only_managers else 'false')
 # from sqlalchemy import desc, func
+
+@app.route('/employees_mgr')
+# @hr_or_manager_required
+@login_required
+def employees_mgr():
+    dept_no = request.args.get('dept_no')
+    page = request.args.get('page', 1, type=int)
+    per_page = 10  # You can change this number to show more/less items per page
+    search = request.args.get('search', '')
+
+    # Query to fetch employees in the specified department with pagination
+    query = db.session.query(
+        Employee.emp_no,
+        Employee.first_name,
+        Employee.last_name,
+        Employee.gender,
+        Employee.birth_date,
+        Employee.hire_date
+    ).join(Dept_Emp, Employee.emp_no == Dept_Emp.emp_no) \
+     .filter(Dept_Emp.dept_no == dept_no, Dept_Emp.to_date > datetime.now())
+
+    if search:
+        query = query.filter(db.or_(
+            Employee.first_name.ilike(f'%{search}%'),
+            Employee.last_name.ilike(f'%{search}%')
+        ))
+
+    employees = query.paginate(page=page, per_page=per_page, error_out=False)
+
+    return render_template('employees-mgr.html', employees=employees, dept_no=dept_no)
+
 
 @login_required
 @app.route('/get_employee_data/<int:emp_no>')

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Employees - Manager</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='employees-mgr-style.css') }}">
+</head>
+<body data-dept-no="{{ dept_no }}">
+    <div class="navbar">
+        <button onclick="window.location.href='{{ url_for('dashboard_mgr') }}'">Back to Dashboard</button>
+        <h1>Employees</h1>
+        <button id="hireEmployeeBtn">Hire Employee</button>
+    </div>
+
+    <div class="content">
+        <!-- Employee management content here -->
+        <h1>Employee Management for  dept-{{ dept_no }}</h1>
+        <!-- Add your employee management UI components here -->
+        <div class="container">
+        <h2>Employees in Department {{ dept_no }}</h2>
+         <div class="search-container">
+            <form action="{{ url_for('employees_mgr', dept_no=dept_no) }}" method="get" class="search-form">
+                <input type="hidden" id="deptNo" value="{{ dept_no }}">
+                <input type="text" name="search" placeholder="Search for employees...">
+                <button type="submit">Search</button>
+            </form>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Employee Number</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Gender</th>
+                    <th>Birth Date</th>
+                    <th>Hire Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for emp in employees.items %}
+                <tr>
+                    <td>{{ emp.emp_no }}</td>
+                    <td>{{ emp.first_name }}</td>
+                    <td>{{ emp.last_name }}</td>
+                    <td>{{ emp.gender }}</td>
+                    <td>{{ emp.birth_date.strftime('%Y-%m-%d') }}</td>
+                    <td>{{ emp.hire_date.strftime('%Y-%m-%d') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+            <div class="pagination">
+                {% if employees.has_prev %}
+                    <a href="{{ url_for('employees_mgr', dept_no=dept_no, page=employees.prev_num, search=search) }}">Previous</a>
+                {% endif %}
+                <span>Page {{ employees.page }} of {{ employees.pages }}</span>
+                {% if employees.has_next %}
+                    <a href="{{ url_for('employees_mgr', dept_no=dept_no, page=employees.next_num, search=search) }}">Next</a>
+                {% endif %}
+            </div>
+    </div>
+    </div>
+
+    <!-- Hire Employee Modal -->
+<div id="hireEmployeeModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2>Hire New Employee</h2>
+        <form id="hireEmployeeForm">
+            <!-- Form fields for hiring an employee -->
+            <div class="form-group">
+                <label for="firstName">First Name:</label>
+                <input type="text" id="firstName" name="firstName" required>
+            </div>
+            <div class="form-group">
+                <label for="lastName">Last Name:</label>
+                <input type="text" id="lastName" name="lastName" required>
+            </div>
+            <div class="form-group">
+                <label for="hireDate">Hire Date:</label>
+                <input type="date" id="hireDate" name="hireDate" required>
+            </div>
+            <div class="form-group">
+                <label for="title">Title:</label>
+                <input type="text" id="title" name="title" required>
+            </div>
+            <!-- Add other input fields as needed -->
+            <button type="submit">Send to HR</button>
+        </form>
+    </div>
+</div>
+
+
+    <!-- Include any necessary scripts -->
+    <script src="{{ url_for('static', filename='js/employees-mgr-script.js') }}"></script>
+</body>
+</html>

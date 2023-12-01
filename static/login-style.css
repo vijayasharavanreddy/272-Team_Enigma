@@ -94,11 +94,17 @@ button:hover {
 }
 
 .flash-message {
-    text-align: center;
-    margin-bottom: 1em;
-    color: #d9534f;
+    color: red;
     font-weight: bold;
+    text-align: center;
+    width: 100%;
+    position: absolute;
+    top: 60px; /* Adjust as needed to position below the navbar */
+    left: 0;
+    right: 0;
+    z-index: 10; /* Ensure it's above other elements */
 }
+
 
 body {
             position: relative;
