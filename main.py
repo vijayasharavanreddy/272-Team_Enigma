@@ -780,7 +780,6 @@ def add_task():
         deadline = None  # Handle the case where deadline is not provided
 
     new_task = ManagerRequest(
-        id=data['id'],
         task_name=data['taskName'],
         description=data['description'],
         assignee=data['assignee'],
