@@ -153,24 +153,28 @@ function handleTerminate(firstName, lastName, dept_no) {
         return; // Stop if the user cancels the action
     }
 
-    const mgr_no = document.getElementById('mgrNo').value;
-    // AJAX request to the backend
-    var xhr = new XMLHttpRequest();
-    xhr.open("POST", "/terminate_employee", true);
-    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-    xhr.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            var response = JSON.parse(this.responseText);
+    const mgr_no = document.getElementById("mgrNo").value; // Using jQuery to get the manager number
+
+    // AJAX request to the backend using jQuery
+    $.ajax({
+        url: '/terminate_employee',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ firstName: firstName, lastName: lastName, dept_no: dept_no, mgr_no: mgr_no }),
+        success: function(response) {
             if(response.status === 'success') {
                 alert("Termination request sent successfully!");
                 // Additional logic to update UI or redirect
             } else {
                 alert("Error: " + response.message);
             }
+        },
+        error: function(xhr, status, error) {
+            alert("An error occurred: " + xhr.responseText);
         }
-    };
-    xhr.send(JSON.stringify({ firstName: firstName, lastName: lastName, dept_no: dept_no, mgr_no: mgr_no }));
+    });
 }
+
 
 
 

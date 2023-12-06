@@ -471,6 +471,18 @@ body {
     font-size: 20px;
 }
 
+#approvalCount {
+    background-color: red;
+    color: white;
+    font-size: 0.8em;
+    padding: 2px 6px;
+    border-radius: 50%;
+    position: relative;
+    top: -10px;
+    right: 10px;
+}
+
+
 
 /* ... additional CSS as needed ... */
 

@@ -1,3 +1,6 @@
+
+
+
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f4;
@@ -167,5 +170,346 @@ button {
 button:hover {
     background-color: #2980b9;
 }
+
+/*!* Task Container Styles *!*/
+/*.task-container {*/
+/*    background-color: #f4f4f4;*/
+/*    padding: 20px;*/
+/*    border-radius: 10px;*/
+/*    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);*/
+/*    margin: 20px;*/
+/*    text-align: center;*/
+/*    transition: transform 0.3s ease;*/
+/*}*/
+
+/*.task-container:hover {*/
+/*    transform: scale(1.05);*/
+/*    transition: transform 0.3s ease;*/
+/*}*/
+
+/*!* Task Card Styles *!*/
+/*.task-card {*/
+/*    background-color: #ffffff;*/
+/*    border: 1px solid #e0e0e0;*/
+/*    border-radius: 5px;*/
+/*    padding: 10px;*/
+/*    margin: 10px;*/
+/*    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);*/
+/*    transition: box-shadow 0.3s ease;*/
+/*}*/
+
+/*.task-card:hover {*/
+/*    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);*/
+/*    transition: box-shadow 0.3s ease;*/
+/*}*/
+
+/*!* Done Button Styles *!*/
+/*#doneButton {*/
+/*    background-color: #4CAF50;*/
+/*    color: #ffffff;*/
+/*    border: none;*/
+/*    padding: 10px 20px;*/
+/*    border-radius: 5px;*/
+/*    cursor: pointer;*/
+/*    transition: background-color 0.3s ease;*/
+/*}*/
+
+/*#doneButton:hover {*/
+/*    background-color: #45a049;*/
+/*    transition: background-color 0.3s ease;*/
+/*}*/
+
+/*!* Animation for Task Cards *!*/
+/*@keyframes slideIn {*/
+/*    0% {*/
+/*        opacity: 0;*/
+/*        transform: translateY(-20px);*/
+/*    }*/
+/*    100% {*/
+/*        opacity: 1;*/
+/*        transform: translateY(0);*/
+/*    }*/
+/*}*/
+
+/*.task-card {*/
+/*    animation: slideIn 0.5s ease;*/
+/*}*/
+
+/*!* Animation for Done Button *!*/
+/*@keyframes pulse {*/
+/*    0% {*/
+/*        transform: scale(1);*/
+/*    }*/
+/*    50% {*/
+/*        transform: scale(1.05);*/
+/*    }*/
+/*    100% {*/
+/*        transform: scale(1);*/
+/*    }*/
+/*}*/
+
+/*#doneButton {*/
+/*    animation: pulse 1s infinite ease-in-out;*/
+/*}*/
+
+/*!* Task Container Styles *!*/
+/*.task-container {*/
+/*    background-color: #f4f4f4;*/
+/*    padding: 20px;*/
+/*    border-radius: 10px;*/
+/*    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);*/
+/*    margin: 20px;*/
+/*    text-align: center;*/
+/*    transition: transform 0.3s ease;*/
+/*}*/
+
+/*.task-container:hover {*/
+/*    transform: scale(1.05);*/
+/*    transition: transform 0.3s ease;*/
+/*}*/
+
+/*!* Task List Styles *!*/
+/*.task-list {*/
+/*    display: flex;*/
+/*    flex-wrap: wrap;*/
+/*    justify-content: space-between;*/
+/*}*/
+
+/*!* Task Card Styles *!*/
+/*.task-card {*/
+/*    background-color: #ffffff;*/
+/*    border: 1px solid #e0e0e0;*/
+/*    border-radius: 5px;*/
+/*    padding: 10px;*/
+/*    margin: 10px;*/
+/*    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);*/
+/*    transition: box-shadow 0.3s ease;*/
+/*}*/
+
+/*.task-card:hover {*/
+/*    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);*/
+/*    transition: box-shadow 0.3s ease;*/
+/*}*/
+
+/*!* No Tasks Message Styles *!*/
+/*.no-tasks {*/
+/*    display: none;*/
+/*    text-align: center;*/
+/*    margin-top: 20px;*/
+/*    animation: fadeIn 0.5s ease;*/
+/*}*/
+
+/*.no-tasks-message {*/
+/*    font-size: 18px;*/
+/*    color: #666;*/
+/*}*/
+
+/*!* Done Button Styles *!*/
+/*#doneButton {*/
+/*    background-color: #4CAF50;*/
+/*    color: #ffffff;*/
+/*    border: none;*/
+/*    padding: 10px 20px;*/
+/*    border-radius: 5px;*/
+/*    cursor: pointer;*/
+/*    transition: background-color 0.3s ease;*/
+/*}*/
+
+/*#doneButton:hover {*/
+/*    background-color: #45a049;*/
+/*    transition: background-color 0.3s ease;*/
+/*}*/
+
+/*!* Animation for No Tasks Message *!*/
+/*@keyframes fadeIn {*/
+/*    0% {*/
+/*        opacity: 0;*/
+/*    }*/
+/*    100% {*/
+/*        opacity: 1;*/
+/*    }*/
+/*}*/
+
+/*!* Show No Tasks Message when there are no tasks *!*/
+/*.task-list:empty + .no-tasks {*/
+/*    display: block;*/
+/*}*/
+
+/* Container styles */
+.container {
+    background-color: #f0f0f0;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin: 20px auto;
+    max-width: 800px;
+}
+
+.container h2 {
+    color: #333;
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.container p {
+    color: #777;
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+
+/* Task container styles */
+.task-container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+}
+
+.task-container h3 {
+    color: #333;
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+/* Task list styles */
+.task-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* Task card styles */
+.task-card {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.task-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.task-card h4 {
+    color: #333;
+    font-size: 18px;
+    margin-bottom: 5px;
+}
+
+.task-card p {
+    color: #777;
+    font-size: 14px;
+    margin: 0;
+}
+
+/* No tasks message styles */
+.no-tasks {
+    text-align: center;
+    margin-top: 20px;
+    display: none; /* Initially hidden */
+}
+
+.no-tasks-message {
+    color: #777;
+    font-size: 16px;
+}
+
+/* Done button styles */
+#doneButton {
+    background-color: #007bff;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 10px;
+    transition: background-color 0.2s ease-in-out;
+}
+
+#doneButton:hover {
+    background-color: #0056b3;
+}
+
+/* Profile modal styles (You can add more styles if needed) */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1;
+}
+
+.modal-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 20px;
+    cursor: pointer;
+    color: #777;
+}
+
+.close:hover {
+    color: #333;
+}
+
+/* Profile form styles (You can add more styles if needed) */
+.form-group {
+    margin-bottom: 10px;
+}
+
+label {
+    color: #333;
+    font-weight: bold;
+}
+
+input[type="text"],
+input[type="date"] {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+input[type="radio"] {
+    margin-right: 5px;
+}
+
+button[type="button"],
+button[type="submit"] {
+    background-color: #007bff;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 10px;
+    transition: background-color 0.2s ease-in-out;
+}
+
+button[type="button"]:hover,
+button[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
 
 

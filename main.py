@@ -8,7 +8,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import aliased
 from functools import wraps
 
-from models import db, HRUser, Title, Salary, Dept_Manager, HRRequest
+from models import db, HRUser, Title, Salary, Dept_Manager, HRRequest, ManagerRequest
 from flask import Flask, request, render_template, redirect, url_for, flash, session
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from models import db, HRUser, Employee, Department, Dept_Emp
@@ -180,21 +180,27 @@ def my_profile():
 
     data = request.get_json()
     user_id = current_user.id
+
+    # Fetch HRUser and Employee by user_id and their names
     user = HRUser.query.get(user_id)
     employee = Employee.query.filter_by(first_name=user.first_name, last_name=user.last_name).first()
 
-    if employee:
+    if user and employee:
+        # Update HRUser
+        user.first_name = data['first_name']
+        user.last_name = data['last_name']
+
+        # Update Employee
         employee.first_name = data['first_name']
         employee.last_name = data['last_name']
         employee.birth_date = datetime.strptime(data['birth_date'], '%Y-%m-%d').date()
         employee.gender = data['gender']
 
+        # Commit changes to the database
         db.session.commit()
         return jsonify({'success': 'Profile updated successfully'}), 200
     else:
-        return jsonify({'error': 'Employee not found'}), 404
-
-    # return render_template('edit_profile.html', employee=employee)
+        return jsonify({'error': 'User or Employee not found'}), 404
 
 
 @app.route('/dashboard_mgr')
@@ -221,8 +227,15 @@ def dashboard_mgr():
     return render_template('dashboard-mgr.html', employee=employee, first_name=employee.first_name, dept_name=dept_name,
                            dept_no=dept_no, mgr_no=employee.emp_no)
 
+@app.route('/approvals_count')
+@login_required
+def get_approval_count():
+    count = HRRequest.query.filter_by(hire_status=0).count()
+    return jsonify({'count': count})
+
 
 @app.route('/dashboard_emp')
+@login_required
 def dashboard_emp():
     user = HRUser.query.get(current_user.id)
     employee = Employee.query.filter_by(first_name=user.first_name, last_name=user.last_name).first()
@@ -356,7 +369,28 @@ def employees():
                            only_managers_state='true' if only_managers else 'false')
 
 
-# from sqlalchemy import desc, func
+@app.route('/get_manager_requests/<int:emp_no>')
+@login_required
+def get_manager_requests(emp_no):
+    try:
+        # Fetch manager_requests for the specified emp_no
+        manager_requests = ManagerRequest.query.filter_by(assignee=emp_no, task_status=0).all()
+        manager_requests_data = []
+
+        for request in manager_requests:
+            manager_requests_data.append({
+                'id': request.id,
+                'title': request.task_name,
+                'description': request.description,
+                'task_status': request.task_status,
+                'deadline': request.deadline,
+                'assignee': request.assignee
+            })
+
+        return jsonify(manager_requests_data), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 
 @app.route('/employees_mgr')
 # @hr_or_manager_required
@@ -556,7 +590,7 @@ def approve_employee():
 
         # Generate a unique employee number
         while True:
-            emp_no = random.randint(10000, 99999)  # Adjust range as per your ID scheme
+            emp_no = random.randint(600000, 999999)  # Adjust range as per your ID scheme
             existing_employee = Employee.query.filter_by(emp_no=emp_no).first()
             if not existing_employee:
                 break
@@ -585,6 +619,14 @@ def approve_employee():
             to_date=datetime(datetime.now().year + 2, 1, 1).strftime('%Y-%m-%d')  # Set to_date as per your logic
         )
         db.session.add(new_dept_emp)
+
+        new_salary = Salary(
+            emp_no=emp_no,
+            salary=data['salary'],
+            from_date=datetime.now().strftime('%Y-%m-%d'),
+            to_date=datetime(datetime.now().year + 2, 1, 1).strftime('%Y-%m-%d')  # Set to_date as per your logic
+        )
+        db.session.add(new_salary)
 
     elif hr_request.req_type == 'terminate':
         # Logic for terminate
@@ -667,8 +709,9 @@ def promote_employee():
 
 
 @app.route('/terminate_employee', methods=['POST'])
+@login_required
 def terminate_employee():
-    data = request.json
+    data = request.get_json()
     first_name = data.get('firstName')
     last_name = data.get('lastName')
     dept_no = data.get('dept_no')
@@ -680,10 +723,10 @@ def terminate_employee():
 
     emp_no = emp_entry.emp_no
     title_entry = Title.query.filter_by(emp_no=emp_no).first()
+    title = "Unknown"
 
-    if title_entry is None:
-        return jsonify({'error': 'Request not found'}), 404
-    title = title_entry.title
+    if title_entry is not None:
+        title = title_entry.title
 
     try:
         # Create a new HRRequest object for termination
@@ -713,6 +756,58 @@ def terminate_employee():
 def managers():
     return render_template('managers.html')
 
+@app.route('/get_employees')
+def get_employees():
+    dept_no = request.args.get('dept_no')
+
+    if not dept_no:
+        return jsonify({'error': 'Department number is required'}), 400
+
+    employees = db.session.query(Employee.emp_no, Employee.first_name, Employee.last_name)\
+                          .join(Dept_Emp, Dept_Emp.emp_no == Employee.emp_no)\
+                          .filter(Dept_Emp.dept_no == dept_no).all()
+
+    employee_list = [{'id': emp.emp_no, 'name': f"{emp.first_name} {emp.last_name}"} for emp in employees]
+    return jsonify(employee_list)
+
+@app.route('/add_task', methods=['POST'])
+def add_task():
+    data = request.get_json()
+    deadline = data['deadline']
+    if deadline:
+        deadline = datetime.strptime(deadline, '%Y-%m-%d')
+    else:
+        deadline = None  # Handle the case where deadline is not provided
+
+    new_task = ManagerRequest(
+        id=data['id'],
+        task_name=data['taskName'],
+        description=data['description'],
+        assignee=data['assignee'],
+        deadline=deadline,  # Use the processed deadline
+        manager_no=data['managerNo'],
+        task_status=data.get('task_status', 0)  # Assuming a default status
+    )
+
+    db.session.add(new_task)
+    db.session.commit()
+
+    return jsonify({'message': 'Task added successfully'}), 200
+
+@app.route('/update_manager_request/<int:task_id>', methods=['POST'])
+def update_manager_request(task_id):
+    data = request.get_json()
+    task_status = data.get('status')
+
+    # Logic to update the task status in your database
+    # Example:
+    task = ManagerRequest.query.get(task_id)
+    if task:
+        task.task_status = task_status
+        db.session.commit()
+        return jsonify({'message': 'Task status updated'}), 200
+    else:
+        return jsonify({'error': 'Task not found'}), 404
 
 @app.route('/departments/list')
 @login_required
@@ -858,6 +953,60 @@ def update_department_manager():
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
+# Flask route example
+@app.route('/add_employee', methods=['POST'])
+def add_employee():
+    data = request.get_json()
+
+    try:
+        # Start a database transaction
+        db.session.begin()
+
+        # Generate a unique employee number
+        while True:
+            emp_no = random.randint(600000, 999999)  # Adjust range as per your ID scheme
+            if not Employee.query.filter_by(emp_no=emp_no).first():
+                break
+
+        # Create new employee
+        new_employee = Employee(
+            emp_no=emp_no,
+            birth_date=datetime(datetime.now().year - 24, 1, 1),  # Adjust date as needed
+            first_name=data['first_name'],
+            last_name=data['last_name'],
+            gender='M',  # Adjust gender as needed
+            hire_date=datetime.now().strftime('%Y-%m-%d')
+        )
+        db.session.add(new_employee)
+
+        # Commit the employee record to ensure it's in the database before proceeding
+        db.session.commit()
+
+        # Now that the employee is committed, add entries to dept_emp and salary
+        new_dept_emp = Dept_Emp(
+            emp_no=emp_no,
+            dept_no=data['dept_no'],
+            from_date=datetime.now().strftime('%Y-%m-%d'),
+            to_date=datetime(datetime.now().year + 2, 1, 1).strftime('%Y-%m-%d')
+        )
+        db.session.add(new_dept_emp)
+
+        new_salary = Salary(
+            emp_no=emp_no,
+            salary=data['salary'],
+            from_date=datetime.now().strftime('%Y-%m-%d'),
+            to_date=datetime(datetime.now().year + 2, 1, 1).strftime('%Y-%m-%d')
+        )
+        db.session.add(new_salary)
+
+        # Commit the remaining changes
+        db.session.commit()
+        return jsonify({'message': 'Employee added successfully'}), 200
+
+    except SQLAlchemyError as e:
+        # Roll back the transaction in case of an error
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
 
 @login_required
 @app.route('/delete/department/<dept_no>', methods=['DELETE'])

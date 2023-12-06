@@ -276,6 +276,73 @@
         });
     }
 
+    // Function to open the Add Employee modal
+function openAddEmployeeModal() {
+    document.getElementById("addEmployeeModal").style.display = "block";
+    document.getElementById("pageOverlay").style.display = "block";
+    $.ajax({
+                            url: '/departments/list',
+                            type: 'GET',
+                            success: function(departments) {
+                                var deptDropdown = $('#addDept'); // The ID of your department dropdown
+                                deptDropdown.empty();
+                                departments.forEach(function(dept) {
+                                    deptDropdown.append($('<option>', {
+                                        value: dept.dept_no,
+                                        text: dept.dept_name
+                                    }));
+                                });
+                            },
+                            error: function(error) {
+                                console.error("Error fetching departments:", error);
+                            }
+                     });
+}
+
+// Function to close the Add Employee modal
+function closeAddModal() {
+    document.getElementById("addEmployeeModal").style.display = "none";
+    document.getElementById("pageOverlay").style.display = "none";
+}
+
+$(document).ready(function() {
+    $('.add-button').click(function(event) {
+        addNewEmployee(event);
+    });
+});
+
+// Function to handle the addition of a new employee
+function addNewEmployee(e) {
+    console.log(e);
+    e.preventDefault();
+    var newEmployeeData = {
+        first_name: $('#addFirstName').val(),
+        last_name: $('#addLastName').val(),
+        title: $('#addTitle').val(),
+        salary: $('#addSalary').val(),
+        dept_no: $('#addDept').val()
+    };
+
+    $.ajax({
+        url: '/add_employee', // Update with your actual endpoint
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(newEmployeeData),
+        success: function(response) {
+            closeAddModal();
+            alert("succesfully added");
+            location.reload(); // Refresh or update the table accordingly
+        },
+        error: function(error) {
+            console.error("Error adding new employee:", error);
+        }
+    });
+}
+
+// Attach the open modal function to the Add Employee button
+document.getElementById('addEmployeeButton').onclick = openAddEmployeeModal;
+
+
     // Close the modal if the user clicks anywhere outside of it
     // window.onclick = function(event) {
     //     if (event.target === "modal") {
@@ -342,6 +409,40 @@
         <div class="dot"></div>
     </div>
 </div>
+
+<!-- Add Employee Panel -->
+<div id="addEmployeeModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeAddModal()">&times;</span>
+        <h2>Add New Employee</h2>
+        <form id="addEmployeeForm" class="add-employee-form">
+            <div class="form-group">
+                <label for="addFirstName">First Name:</label>
+                <input type="text" id="addFirstName" name="first_name">
+            </div>
+            <div class="form-group">
+                <label for="addLastName">Last Name:</label>
+                <input type="text" id="addLastName" name="last_name">
+            </div>
+            <div class="form-group">
+                <label for="addTitle">Title:</label>
+                <input type="text" id="addTitle" name="title">
+            </div>
+            <div class="form-group">
+                <label for="addSalary">Salary:</label>
+                <input type="number" id="addSalary" name="salary">
+            </div>
+            <div class="form-group">
+                <label for="addDept">Department:</label>
+                <select id="addDept" name="department">
+                    <!-- Department options will be dynamically populated -->
+                </select>
+            </div>
+            <button type="button" class="add-button">Add</button>
+        </form>
+    </div>
+</div>
+
 
 <!--<div id="ajaxSpinnerContainer" class="ajax-spinner-container">-->
 <!--    <div class="ajax-spinner"></div>-->

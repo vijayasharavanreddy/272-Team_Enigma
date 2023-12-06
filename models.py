@@ -1,5 +1,5 @@
-import datetime
-
+# import datetime
+from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 
@@ -124,3 +124,17 @@ class HRRequest(db.Model):
     def __repr__(self):
         return f'<HRRequest {self.dept_no} {self.first_name} {self.last_name} {self.req_type} {self.title}>'
 
+class ManagerRequest(db.Model):
+    __tablename__ = 'manager_requests'
+
+    id = db.Column(db.Integer, primary_key=True)
+    task_name = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    assignee = db.Column(db.String(255), nullable=False)
+    deadline = db.Column(db.Date, nullable=False)
+    manager_no = db.Column(db.Integer, nullable=False)
+    dept_name = db.Column(db.String(255), nullable=True)
+    task_status = db.Column(db.Integer, nullable=True)
+
+    def __repr__(self):
+        return f'<ManagerRequest {self.id}>'

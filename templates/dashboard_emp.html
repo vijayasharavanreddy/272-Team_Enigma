@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>Employee Dashboard</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='dashboard-mgr-style.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='dashbaord-emp-style.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
@@ -17,6 +17,7 @@
     </div>
 
     <div class="container">
+        <input type="hidden" id="currEmpNo" value="{{employee.emp_no}}">
         <h2>Hello, {{ first_name }}</h2>
         <p>Welcome to your employment dashboard.</p>
         {% if dept_name %}
@@ -24,6 +25,17 @@
         {% else %}
             <p>You are not currently employee of any department.</p>
         {% endif %}
+
+        <div class="task-container">
+         <h3>Manager Requests</h3>
+        <div class="task-list">
+            <!-- Task cards will be dynamically added here -->
+        </div>
+        <div class="no-tasks">
+            <p class="no-tasks-message">Yay, no pending items... 📝</p>
+        </div>
+
+        </div>
     </div>
 
     <!-- Profile Modal -->

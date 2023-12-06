@@ -168,6 +168,22 @@ function hideLoader() {
     document.getElementById('loader').style.display = 'none';
 }
 
+document.addEventListener('DOMContentLoaded', function() {
+    fetch('/approvals_count')
+        .then(response => response.json())
+        .then(data => {
+            const count = data.count; // assuming the server returns a JSON object with a 'count' property
+            if (count > 0) {
+                document.getElementById('approvalCount').textContent = count;
+            } else {
+                // Hide the badge if there are no entries
+                document.getElementById('approvalCount').style.display = 'none';
+            }
+        })
+        .catch(error => console.error('Error:', error));
+});
+
+
 function approveRequest() {
     // Implement approve logic
     const managerNo = document.querySelector("#modalDetails p:nth-child(2)").textContent.split(": ")[1];
@@ -203,6 +219,17 @@ function approveRequest() {
             alert(data.message);
             closeModal();
             openApprovalsPanel();
+            fetch('/approvals_count')
+            .then(response => response.json())
+            .then(data => {
+                const count = data.count; // assuming the server returns a JSON object with a 'count' property
+                if (count > 0) {
+                    document.getElementById('approvalCount').textContent = count;
+                } else {
+                    // Hide the badge if there are no entries
+                    document.getElementById('approvalCount').style.display = 'none';
+                }
+            }).catch(error => console.error('Error:', error));
             // Additional logic to update the UI
         } else {
             alert('Error: ' + data.error);
@@ -243,6 +270,17 @@ function declineRequest() {
             alert(data.message);
             closeModal();
             openApprovalsPanel(); // Optionally, refresh the approvals panel
+             fetch('/approvals_count')
+            .then(response => response.json())
+            .then(data => {
+                const count = data.count; // assuming the server returns a JSON object with a 'count' property
+                if (count > 0) {
+                    document.getElementById('approvalCount').textContent = count;
+                } else {
+                    // Hide the badge if there are no entries
+                    document.getElementById('approvalCount').style.display = 'none';
+                }
+            }).catch(error => console.error('Error:', error));
         } else {
             alert('Error: ' + data.error);
         }

@@ -262,6 +262,7 @@
                 success: function(response) {
                     alert('Department added successfully');
                     closeAddDepartmentPanel();
+                    refreshDepartmentsTable();
                     // Optionally refresh the departments table here
                 },
                 error: function(error) {
