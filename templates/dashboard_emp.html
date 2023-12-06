@@ -1,28 +1,28 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Manager Dashboard</title>
+    <title>Employee Dashboard</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='dashboard-mgr-style.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div class="header">
-        <h1>Welcome to Manager Dashboard</h1>
+        <h1>Welcome to Employee Dashboard</h1>
     </div>
 
     <div class="navbar">
-        <a href="{{ url_for('employees_mgr', dept_no=dept_no, mgr_no = mgr_no) }}">Employees</a>
+        <a href="{{ url_for('employee_history_loader', emp_no = employee.emp_no) }}">History</a>
         <button id="myProfileBtn" onclick="showProfileModal()">My Profile</button>
         <a href="{{ url_for('logout') }}" id="logout-btn">Logout</a>
     </div>
 
     <div class="container">
         <h2>Hello, {{ first_name }}</h2>
-        <p>Welcome to your management dashboard.</p>
+        <p>Welcome to your employment dashboard.</p>
         {% if dept_name %}
-            <p>You are managing the department: <strong>{{ dept_name }}</strong></p>
+            <p>You are working in the department: <strong>{{ dept_name }}</strong></p>
         {% else %}
-            <p>You are not managing any department.</p>
+            <p>You are not currently employee of any department.</p>
         {% endif %}
     </div>
 
@@ -32,7 +32,7 @@
             <span class="close" onclick="closeProfileModal()">&times;</span>
             <h3>Edit Profile</h3>
             <!-- Profile Form -->
-            <form id="profileForm"  data-action-url="{{ url_for('my_profile') }}">
+            <form id="profileForm" data-action-url="{{ url_for('my_profile') }}">
                 <!-- Form fields here -->
                 <!-- ... -->
                 <div class="form-group">
@@ -60,6 +60,6 @@
         </div>
     </div>
 
-    <script src="{{ url_for('static', filename='js/dashboard-script-mgr.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/dashboard-script-emp.js') }}"></script>
 </body>
 </html>

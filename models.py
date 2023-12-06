@@ -1,3 +1,5 @@
+import datetime
+
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 
@@ -94,4 +96,31 @@ class Dept_Manager(db.Model):
     # Relationships
     employee = db.relationship('Employee', backref='dept_manager')
     department = db.relationship('Department', backref='dept_manager')
+
+class HRRequest(db.Model):
+    __tablename__ = 'hr_request'
+
+    req_type = db.Column(db.String(10), primary_key=True)
+    first_name = db.Column(db.String(14), primary_key=True)
+    last_name = db.Column(db.String(16), primary_key=True)
+    hire_status = db.Column(db.Integer, primary_key=True)
+    hire_date = db.Column(db.Date)
+    dept_no = db.Column(db.String(4), nullable=False)
+    manager_no = db.Column(db.Integer)
+    title = db.Column(db.String(50))
+    salary = db.Column(db.Integer)
+
+    def __init__(self, req_type, first_name, last_name, hire_status, dept_no, manager_no=None, title=None, salary=None, hire_date=None):
+        self.req_type = req_type
+        self.first_name = first_name
+        self.last_name = last_name
+        self.hire_status = hire_status
+        self.dept_no = dept_no
+        self.manager_no = manager_no
+        self.title = title
+        self.salary = salary
+        self.hire_date = hire_date
+
+    def __repr__(self):
+        return f'<HRRequest {self.dept_no} {self.first_name} {self.last_name} {self.req_type} {self.title}>'
 

@@ -4,7 +4,7 @@
     <title>Employees - Manager</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='employees-mgr-style.css') }}">
 </head>
-<body data-dept-no="{{ dept_no }}">
+<body data-dept-no="{{ dept_no }}" data-mgr-no="{{ mgr_no }}">
     <div class="navbar">
         <button onclick="window.location.href='{{ url_for('dashboard_mgr') }}'">Back to Dashboard</button>
         <h1>Employees</h1>
@@ -20,6 +20,7 @@
          <div class="search-container">
             <form action="{{ url_for('employees_mgr', dept_no=dept_no) }}" method="get" class="search-form">
                 <input type="hidden" id="deptNo" value="{{ dept_no }}">
+                <input type="hidden" id="mgrNo" value="{{ mgr_no }}">
                 <input type="text" name="search" placeholder="Search for employees...">
                 <button type="submit">Search</button>
             </form>
@@ -44,6 +45,10 @@
                     <td>{{ emp.gender }}</td>
                     <td>{{ emp.birth_date.strftime('%Y-%m-%d') }}</td>
                     <td>{{ emp.hire_date.strftime('%Y-%m-%d') }}</td>
+                    <td>
+                        <button onclick="openPromoteModal('{{ emp.emp_no }}', '{{ emp.first_name }}', '{{ emp.last_name }}', '{{ emp.hire_date}}')">Promote</button>
+                        <button onclick="handleTerminate('{{ emp.first_name }}','{{ emp.last_name }}','{{ dept_no }}')">Terminate</button>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -67,6 +72,8 @@
         <h2>Hire New Employee</h2>
         <form id="hireEmployeeForm">
             <!-- Form fields for hiring an employee -->
+<!--            <input type="hidden" id="deptNo" name="deptNo" value="{{dept_no}}">-->
+            <input type="hidden" id="managerId" name="managerId" value="{{mgr_no}}">
             <div class="form-group">
                 <label for="firstName">First Name:</label>
                 <input type="text" id="firstName" name="firstName" required>
@@ -85,6 +92,36 @@
             </div>
             <!-- Add other input fields as needed -->
             <button type="submit">Send to HR</button>
+        </form>
+    </div>
+</div>
+<div id="promoteEmployeeModal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <span class="close" onclick="closePromoteModal()">&times;</span>
+        <h2>Promote Employee</h2>
+        <form id="promoteEmployeeForm">
+
+            <input type="hidden" id="promoteManagerId" name="promoteManagerId" value="{{mgr_no}}">
+            <input type="hidden" id="promoteEmpNo" name="empNo">
+            <input type="hidden" id="promoteHireDate" name="hireDate">
+            <div class="form-group">
+                <label for="promoteFirstName">First Name:</label>
+                <input type="text" id="promoteFirstName" name="firstName" readonly>
+            </div>
+            <div class="form-group">
+                <label for="promoteLastName">Last Name:</label>
+                <input type="text" id="promoteLastName" name="lastName" readonly>
+            </div>
+            <div class="form-group">
+                <label for="promoteTitle">New Title:</label>
+                <input type="text" id="promoteTitle" name="title" required>
+            </div>
+            <div class="form-group">
+                <label for="promoteSalary">New Salary:</label>
+                <input type="number" id="promoteSalary" name="salary" required>
+            </div>
+            <button type="button" onclick="sendPromotionToHR()">Send to HR</button>
+            <button type="button" onclick="closePromoteModal()">Cancel</button>
         </form>
     </div>
 </div>

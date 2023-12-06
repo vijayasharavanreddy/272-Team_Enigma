@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Employee History</title>
+    <style>
+    body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+    }
+
+    canvas {
+        -webkit-animation: fadeIn 1s ease-in-out;
+        animation: fadeIn 1s ease-in-out;
+        margin: 20px auto;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        max-width: 600px;
+        width: 90%;
+    }
+
+    @-webkit-keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .loader {
+        border: 5px solid #f3f3f3;
+        border-top: 5px solid #3498db;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 2s linear infinite;
+        margin: 40px auto;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .timeline {
+    margin: 30px;
+    border-left: 3px solid #3498db;
+    border-bottom-right-radius: 4px;
+    border-top-right-radius: 4px;
+    color: #666;
+    background: #f4f4f4;
+    padding: 20px;
+    position: relative;
+}
+
+.timeline h2 {
+    color: #3498db;
+}
+
+.timeline-entry {
+    border-bottom: 1px dashed #d4d4d4;
+    position: relative;
+    margin: 10px 0;
+}
+
+.timeline-entry:last-child {
+    border: 0;
+}
+
+.timeline-date {
+    margin-bottom: 5px;
+    color: #a4a4a4;
+    font-size: 0.85em;
+}
+
+.timeline-content {
+    padding: 10px;
+    background: #fff;
+    position: relative;
+    border-radius: 4px;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+.timeline-entry:before {
+    content: '';
+    position: absolute;
+    border-style: solid;
+    border-width: 10px 0 10px 10px;
+    border-color: transparent transparent transparent #3498db;
+    left: -20px;
+    top: 15px;
+}
+.header {
+    background-color: dodgerblue;
+    color: white;
+    padding: 10px 20px;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    height: 80px;
+}
+
+.header h1 {
+    margin-left: 20px;
+    font-size: 24px;
+}
+
+.dashboard-button {
+    background-color: #f3f3f3;
+    color: #3498db;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    left: 30px;
+    position: absolute;
+}
+
+.dashboard-button:hover {
+    background-color: #3498db;
+    color: white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Continue with your existing CSS */
+
+
+</style>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<header class="header">
+        <button class="dashboard-button" id="dashboard-button">Back to Dashboard</button>
+        <h1>Employee History</h1>
+    </header>
+
+<div class="loader" id="loader"></div>
+   <div>
+        <canvas id="salaryChart"></canvas>
+    </div>
+    <div id="titleTimeline"></div>
+    <div id="deptTimeline"></div>
+
+
+    <script src="{{ url_for('static', filename='js/employee_history.js') }}"></script>
+</body>
+</html>

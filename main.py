@@ -3,12 +3,12 @@ import string
 from datetime import datetime
 
 from flask import Flask, request, jsonify
-from sqlalchemy import func, desc
+from sqlalchemy import func, desc, text
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import aliased
 from functools import wraps
 
-
-from models import db, HRUser, Title, Salary, Dept_Manager
+from models import db, HRUser, Title, Salary, Dept_Manager, HRRequest
 from flask import Flask, request, render_template, redirect, url_for, flash, session
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from models import db, HRUser, Employee, Department, Dept_Emp
@@ -17,6 +17,7 @@ from flask import Flask
 # from flask_session import Session
 import os
 from werkzeug.security import check_password_hash
+
 # from flask_sqlalchemy import SQLAlchemy
 
 # db = SQLAlchemy()
@@ -37,6 +38,7 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
+
 @app.before_request
 def check_server_restart():
     if 'server_start_identifier' in session:
@@ -44,10 +46,12 @@ def check_server_restart():
             # Clear the session if the identifier doesn't match
             session.clear()
 
+
 class User(UserMixin):
     def __init__(self, id, role):
         self.id = id
         self.role = role
+
 
 from flask_login import LoginManager
 
@@ -55,10 +59,12 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
+
 @login_manager.unauthorized_handler
 def unauthorized():
     flash('You must be logged in to view that page.')
     return redirect(url_for('login'))
+
 
 @login_manager.user_loader
 def user_loader(user_id):
@@ -69,24 +75,28 @@ def user_loader(user_id):
         return user_model
     return None
 
+
 def hr_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        print(".................",current_user,".............")
+        print(".................", current_user, ".............")
         if not current_user.is_authenticated or current_user.role != 'hr':
             flash("You don't have permission to access the previous page.")
             return redirect(url_for('logout'))  # Redirect to login or another appropriate page
         return f(*args, **kwargs)
+
     return decorated_function
+
 
 def hr_or_manager_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        print(".................",current_user,".............")
+        print(".................", current_user, ".............")
         if not current_user.is_authenticated or current_user.role != 'hr' or current_user.role != 'manager':
             flash("You don't have permission to access the previous page.")
             return redirect(url_for('logout'))  # Redirect to login or another appropriate page
         return f(*args, **kwargs)
+
     return decorated_function
 
 
@@ -94,12 +104,15 @@ def hr_or_manager_required(f):
 def home():
     return render_template('home.html')
 
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     session['server_start_identifier'] = app.config['SERVER_START_IDENTIFIER']
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+
+        # Check for user with the given username
         user = HRUser.query.filter_by(username=username).first()
         if user and user.check_password(password):
             user_model = User(user.id, user.role)
@@ -108,11 +121,14 @@ def login():
 
             # Redirect based on the user's role
             if user.role == 'manager':
-                return redirect(url_for('dashboard_mgr'))
+                return redirect(url_for('dashboard_mgr', mgr_no=user_model.id))
+            elif user.role == 'employee':
+                return redirect(url_for('dashboard_emp', emp_no=user_model.id))
             else:
                 return redirect(url_for('dashboard'))
         else:
             flash('Invalid username or password. If you do not have an account, please register.')
+
     return render_template('login.html')
 
 
@@ -159,27 +175,13 @@ def dashboard():
 @app.route('/my_profile_mgr', methods=['GET', 'POST'])
 @login_required
 def my_profile():
-    # user_id = current_user.id
-    # user = HRUser.query.get(user_id)
-    # employee = Employee.query.filter_by(first_name=user.first_name,last_name=user.last_name).first()
-    #
-    # if request.method == 'POST':
-    #     employee.first_name = request.form['first_name']
-    #     employee.last_name = request.form['last_name']
-    #     employee.birth_date = datetime.strptime(request.form['birth_date'], '%Y-%m-%d').date()
-    #     employee.gender = request.form['gender']
-    #
-    #     db.session.commit()
-    #     flash('Profile updated successfully')
-    #     return redirect(url_for('dashboard_mgr'))
-
     if not request.is_json:
         return jsonify({'error': 'Invalid request format'}), 400
 
     data = request.get_json()
     user_id = current_user.id
     user = HRUser.query.get(user_id)
-    employee = Employee.query.filter_by(first_name=user.first_name,last_name=user.last_name).first()
+    employee = Employee.query.filter_by(first_name=user.first_name, last_name=user.last_name).first()
 
     if employee:
         employee.first_name = data['first_name']
@@ -193,6 +195,8 @@ def my_profile():
         return jsonify({'error': 'Employee not found'}), 404
 
     # return render_template('edit_profile.html', employee=employee)
+
+
 @app.route('/dashboard_mgr')
 @login_required
 def dashboard_mgr():
@@ -214,7 +218,33 @@ def dashboard_mgr():
     else:
         dept_name = "Employee not found"
 
-    return render_template('dashboard-mgr.html', employee=employee, first_name=employee.first_name, dept_name=dept_name, dept_no=dept_no)
+    return render_template('dashboard-mgr.html', employee=employee, first_name=employee.first_name, dept_name=dept_name,
+                           dept_no=dept_no, mgr_no=employee.emp_no)
+
+
+@app.route('/dashboard_emp')
+def dashboard_emp():
+    user = HRUser.query.get(current_user.id)
+    employee = Employee.query.filter_by(first_name=user.first_name, last_name=user.last_name).first()
+    dept_no = "d001"
+
+    if employee:
+        dept_emp = Dept_Emp.query.filter_by(emp_no=employee.emp_no).first()
+        if dept_emp:
+            dept_no = dept_emp.dept_no
+            department = Department.query.filter_by(dept_no=dept_emp.dept_no).first()
+            if department:
+                dept_name = department.dept_name
+            else:
+                dept_name = "Not a Current Employee"
+        else:
+            dept_name = "Not a Current Employee"
+    else:
+        dept_name = "Employee not found"
+
+    return render_template('dashboard_emp.html', employee=employee, first_name=employee.first_name, dept_name=dept_name,
+                           dept_no=dept_no, mgr_no=employee.emp_no)
+
 
 @app.route('/logout', methods=['GET', 'POST'])
 @login_required
@@ -222,12 +252,49 @@ def logout():
     logout_user()
     return redirect(url_for('home'))
 
+
 # @app.before_first_request
 # def clear_session_on_restart():
 #     if not app.debug or os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
 #         with app.app_context():
 #             session.clear()
 
+@app.route('/employee_history/<int:emp_no>')
+@login_required
+def employee_history(emp_no):
+    # Fetch salary history
+    salary_history_result = db.session.execute(
+        text("SELECT salary, from_date, to_date FROM salaries WHERE emp_no = :emp_no"),
+        {'emp_no': emp_no}
+    ).fetchall()
+    salary_history = [{'salary': row[0], 'from_date': row[1], 'to_date': row[2]} for row in salary_history_result]
+
+    # Fetch title history
+    title_history_result = db.session.execute(
+        text("SELECT title, from_date, to_date FROM titles WHERE emp_no = :emp_no"),
+        {'emp_no': emp_no}
+    ).fetchall()
+    title_history = [{'title': row[0], 'from_date': row[1], 'to_date': row[2]} for row in title_history_result]
+
+    # Fetch department history
+    dept_history_result = db.session.execute(
+        text("SELECT dept_no, from_date, to_date FROM dept_emp WHERE emp_no = :emp_no"),
+        {'emp_no': emp_no}
+    ).fetchall()
+    dept_history = [{'dept_no': row[0], 'from_date': row[1], 'to_date': row[2]} for row in dept_history_result]
+
+    # Return JSON response
+    return jsonify({
+        'salary_history': salary_history,
+        'title_history': title_history,
+        'dept_history': dept_history
+    })
+
+@app.route('/employee_history_loader/<int:emp_no>')
+@login_required
+def employee_history_loader(emp_no):
+    # Render the template and pass emp_no to it
+    return render_template('employee_history.html', emp_no=emp_no)
 
 
 @app.route('/employees')
@@ -257,9 +324,9 @@ def employees():
         Department.dept_name,
         Title.title
     ).join(Dept_Emp, Employee.emp_no == Dept_Emp.emp_no) \
-     .join(Department, Dept_Emp.dept_no == Department.dept_no) \
-     .outerjoin(title_subquery, Employee.emp_no == title_subquery.c.emp_no) \
-     .outerjoin(Title, db.and_(Employee.emp_no == Title.emp_no, title_subquery.c.max_date == Title.from_date))
+        .join(Department, Dept_Emp.dept_no == Department.dept_no) \
+        .outerjoin(title_subquery, Employee.emp_no == title_subquery.c.emp_no) \
+        .outerjoin(Title, db.and_(Employee.emp_no == Title.emp_no, title_subquery.c.max_date == Title.from_date))
 
     # If "Only Managers" is selected, add a filter for manager titles
     if only_managers:
@@ -282,9 +349,13 @@ def employees():
     paginated_employees = query.paginate(page=page, per_page=per_page, error_out=False)
 
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return render_template('partials/_employees_table_body.html', employees=paginated_employees.items, pagination=paginated_employees, only_managers_state='true' if only_managers else 'false')
+        return render_template('partials/_employees_table_body.html', employees=paginated_employees.items,
+                               pagination=paginated_employees, only_managers_state='true' if only_managers else 'false')
 
-    return render_template('employees.html', employees=paginated_employees.items, pagination=paginated_employees, only_managers_state='true' if only_managers else 'false')
+    return render_template('employees.html', employees=paginated_employees.items, pagination=paginated_employees,
+                           only_managers_state='true' if only_managers else 'false')
+
+
 # from sqlalchemy import desc, func
 
 @app.route('/employees_mgr')
@@ -292,6 +363,7 @@ def employees():
 @login_required
 def employees_mgr():
     dept_no = request.args.get('dept_no')
+    manager_no = request.args.get('mgr_no')
     page = request.args.get('page', 1, type=int)
     per_page = 10  # You can change this number to show more/less items per page
     search = request.args.get('search', '')
@@ -305,7 +377,7 @@ def employees_mgr():
         Employee.birth_date,
         Employee.hire_date
     ).join(Dept_Emp, Employee.emp_no == Dept_Emp.emp_no) \
-     .filter(Dept_Emp.dept_no == dept_no, Dept_Emp.to_date > datetime.now())
+        .filter(Dept_Emp.dept_no == dept_no, Dept_Emp.to_date > datetime.now())
 
     if search:
         query = query.filter(db.or_(
@@ -315,7 +387,7 @@ def employees_mgr():
 
     employees = query.paginate(page=page, per_page=per_page, error_out=False)
 
-    return render_template('employees-mgr.html', employees=employees, dept_no=dept_no)
+    return render_template('employees-mgr.html', employees=employees, dept_no=dept_no, mgr_no=manager_no)
 
 
 @login_required
@@ -369,6 +441,7 @@ def get_employee_data(emp_no):
         })
     else:
         return jsonify({'error': 'Employee not found'}), 404
+
 
 @login_required
 @app.route('/update_employee/<int:emp_no>', methods=['POST'])
@@ -433,7 +506,6 @@ def update_employee(emp_no):
             return jsonify({'error': 'Employee not found'}), 404
 
 
-
 @login_required
 @app.route('/api/search_employees')
 def search_employees():
@@ -441,11 +513,199 @@ def search_employees():
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 10, type=int)
     # Implement search logic and paginate results
-    employees = Employee.query.filter(Employee.first_name.ilike(f'%{query}%')).paginate(page=page, per_page=per_page, error_out=False)
+    employees = Employee.query.filter(Employee.first_name.ilike(f'%{query}%')).paginate(page=page, per_page=per_page,
+                                                                                        error_out=False)
     return jsonify({
         'employees': [employee.to_dict() for employee in employees.items],
         'has_more': employees.has_next
     })
+
+
+@app.route('/pending_approvals')
+@login_required
+def pending_approvals():
+    pending_requests = HRRequest.query.filter_by(hire_status=0).all()
+    data = [{
+        'dept_no': request.dept_no,
+        'first_name': request.first_name,
+        'last_name': request.last_name,
+        'hire_date': request.hire_date.strftime('%Y-%m-%d'),
+        'manager_no': request.manager_no,
+        'title': request.title,
+        'salary': request.salary,
+        'req_type': request.req_type
+    } for request in pending_requests]
+
+    return jsonify(data)
+
+
+@app.route('/approve_employee', methods=['POST'])
+def approve_employee():
+    data = request.get_json()
+
+    # Check if the request exists
+    hr_request = HRRequest.query.filter_by(first_name=data['first_name'], last_name=data['last_name'],
+                                           hire_status=0).first()
+    if hr_request is None:
+        return jsonify({'error': 'Request not found'}), 404
+
+    # Update hire_status in hr_request
+    hr_request.hire_status = 1
+
+    if hr_request.req_type == "newhire":
+
+        # Generate a unique employee number
+        while True:
+            emp_no = random.randint(10000, 99999)  # Adjust range as per your ID scheme
+            existing_employee = Employee.query.filter_by(emp_no=emp_no).first()
+            if not existing_employee:
+                break
+
+        # Create new employee
+        new_employee = Employee(
+            emp_no=emp_no,
+            birth_date=datetime(datetime.now().year - 24, 1, 1),  # Adjust date as needed
+            first_name=data['first_name'],
+            last_name=data['last_name'],
+            gender='M',  # Adjust gender as needed
+            hire_date=datetime.now().strftime('%Y-%m-%d')
+        )
+        db.session.add(new_employee)
+        try:
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'error': str(e)}), 500
+
+        # Create dept_emp entry
+        new_dept_emp = Dept_Emp(
+            emp_no=emp_no,
+            dept_no=data['dept_no'],
+            from_date=datetime.now().strftime('%Y-%m-%d'),
+            to_date=datetime(datetime.now().year + 2, 1, 1).strftime('%Y-%m-%d')  # Set to_date as per your logic
+        )
+        db.session.add(new_dept_emp)
+
+    elif hr_request.req_type == 'terminate':
+        # Logic for terminate
+        # Find employee number from first and last name
+        employee = Employee.query.filter_by(first_name=data['first_name'], last_name=data['last_name']).first()
+        if employee:
+            # Delete the specific dept_emp entry for this employee
+            Dept_Emp.query.filter_by(emp_no=employee.emp_no, dept_no=data['dept_no']).delete()
+            # Also, delete the employee record
+            Employee.query.filter_by(emp_no=employee.emp_no).delete()
+
+    elif hr_request.req_type == 'promote':
+        employee = Employee.query.filter_by(first_name=data['first_name'], last_name=data['last_name']).first()
+
+        if employee:
+            # Update salary and title
+            Salary.query.filter_by(emp_no=employee.emp_no).update({'salary': data['salary']})
+            Title.query.filter_by(emp_no=employee.emp_no).update({'title': data['title']})
+
+    try:
+        db.session.commit()
+        return jsonify({'message': f'Employee {hr_request.req_type} request processed successfully'}), 200
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/decline_employee', methods=['PUT', "POST", "DELETE"])
+def decline_employee():
+    data = request.get_json()
+
+    hr_request = HRRequest.query.filter_by(first_name=data['first_name'], last_name=data['last_name'],
+                                           hire_status=0).first()
+    if hr_request is None:
+        return jsonify({'error': 'Request not found'}), 404
+
+    # Update hire_status to 2 (declined)
+    hr_request.hire_status = 2
+
+    try:
+        db.session.commit()
+        return jsonify({'message': 'Employee decline processed successfully'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/promote_employee', methods=['POST'])
+def promote_employee():
+    data = request.json
+    new_title = data.get('title')
+    dept_no = data.get('dept_no')
+    first_name = data.get('first_name')
+    last_name = data.get('last_name')
+    hire_date = data.get('hire_date')
+    manager_no = data.get('manager_no')
+    salary = data.get('salary')
+
+    try:
+        # Create a new HRRequest object
+        hr_request = HRRequest(
+            dept_no=dept_no,  # Replace with actual data
+            first_name=first_name,  # Replace with actual data
+            last_name=last_name,  # Replace with actual data
+            hire_date=hire_date,  # Replace with actual data
+            manager_no=manager_no,  # Replace with actual data
+            title=new_title,
+            salary=salary,  # Replace with actual data
+            req_type='promote',
+            hire_status=0
+        )
+        db.session.add(hr_request)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        print(e)
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+    return jsonify({'status': 'success', 'message': 'Promotion request sent to HR'})
+
+
+@app.route('/terminate_employee', methods=['POST'])
+def terminate_employee():
+    data = request.json
+    first_name = data.get('firstName')
+    last_name = data.get('lastName')
+    dept_no = data.get('dept_no')
+    mgr_no = data.get('mgr_no')
+
+    emp_entry = Employee.query.filter_by(first_name=first_name, last_name=last_name).first()
+    if emp_entry is None:
+        return jsonify({'error': 'Request not found'}), 404
+
+    emp_no = emp_entry.emp_no
+    title_entry = Title.query.filter_by(emp_no=emp_no).first()
+
+    if title_entry is None:
+        return jsonify({'error': 'Request not found'}), 404
+    title = title_entry.title
+
+    try:
+        # Create a new HRRequest object for termination
+        hr_request = HRRequest(
+            dept_no=dept_no,
+            first_name=first_name,
+            last_name=last_name,  # Replace with actual data
+            hire_status=0,  # Replace with actual data
+            salary=50000,
+            hire_date=datetime.now(),
+            manager_no=mgr_no,
+            title=title,
+            req_type='terminate'
+        )
+        db.session.add(hr_request)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        print(e)
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+    return jsonify({'status': 'success', 'message': 'Termination request sent to HR'})
 
 
 @app.route('/managers')
@@ -480,7 +740,7 @@ def departments():
         Employee.last_name
     ).join(latest_dept_managers_subquery, Department.dept_no == latest_dept_managers_subquery.c.dept_no) \
         .join(Dept_Manager, (Dept_Manager.dept_no == latest_dept_managers_subquery.c.dept_no) & (
-                Dept_Manager.from_date == latest_dept_managers_subquery.c.latest_from_date)) \
+            Dept_Manager.from_date == latest_dept_managers_subquery.c.latest_from_date)) \
         .join(Employee, Dept_Manager.emp_no == Employee.emp_no) \
         .filter(Dept_Manager.to_date > datetime.now()) \
         .all()
@@ -496,7 +756,6 @@ from flask import request, redirect, url_for, flash
 from models import db, Department, Dept_Manager
 
 
-
 def generate_unique_dept_no(length=3):
     while True:
         # Generate a random string
@@ -505,7 +764,8 @@ def generate_unique_dept_no(length=3):
         # Check if this dept_no already exists in the database
         existing_dept = Department.query.filter_by(dept_no="d" + dept_no).first()
         if not existing_dept:
-            return "d"+ dept_no  # Unique dept_no found
+            return "d" + dept_no  # Unique dept_no found
+
 
 @login_required
 @app.route('/add_department', methods=['POST'])
@@ -520,12 +780,13 @@ def add_department():
     print(unique_dept_no)
 
     # Create a new department
-    new_department = Department(dept_no = unique_dept_no, dept_name=dept_name)  # Modify as per your model
+    new_department = Department(dept_no=unique_dept_no, dept_name=dept_name)  # Modify as per your model
     db.session.add(new_department)
     db.session.commit()
 
     # Assign manager to the new department
-    new_dept_manager = Dept_Manager(emp_no=manager_emp_no, dept_no=new_department.dept_no, from_date=datetime.now(), to_date=datetime(datetime.now().year + 1, 1, 1))  # Modify as per your model
+    new_dept_manager = Dept_Manager(emp_no=manager_emp_no, dept_no=new_department.dept_no, from_date=datetime.now(),
+                                    to_date=datetime(datetime.now().year + 1, 1, 1))  # Modify as per your model
     db.session.add(new_dept_manager)
     db.session.commit()
 
@@ -543,8 +804,8 @@ def department_manager_history(dept_no):
         Dept_Manager.from_date,
         Dept_Manager.to_date
     ).join(Employee, Dept_Manager.emp_no == Employee.emp_no) \
-     .filter(Dept_Manager.dept_no == dept_no) \
-     .order_by(Dept_Manager.from_date).all()
+        .filter(Dept_Manager.dept_no == dept_no) \
+        .order_by(Dept_Manager.from_date).all()
 
     history_data = [{
         'emp_no': mh.emp_no,
@@ -566,8 +827,8 @@ def update_department_manager():
     to_date = datetime.strptime(data.get('to_date'), '%Y-%m-%d').date()
 
     # Check for existing dept_manager entry
-    existing_dept_manager = Dept_Manager.query.filter_by( dept_no=dept_no, from_date=from_date,
-                                                        to_date=to_date).first()
+    existing_dept_manager = Dept_Manager.query.filter_by(dept_no=dept_no, from_date=from_date,
+                                                         to_date=to_date).first()
 
     if existing_dept_manager:
         # Update existing entry
@@ -579,7 +840,7 @@ def update_department_manager():
 
     # Check for existing dept_emp entry
     existing_dept_emp = Dept_Emp.query.filter_by(dept_no=dept_no, from_date=from_date,
-                                                to_date=to_date).first()
+                                                 to_date=to_date).first()
 
     if existing_dept_emp:
         # Update existing entry
@@ -597,6 +858,7 @@ def update_department_manager():
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
+
 @login_required
 @app.route('/delete/department/<dept_no>', methods=['DELETE'])
 def delete_department(dept_no):
@@ -613,6 +875,7 @@ def delete_department(dept_no):
     else:
         return "Department not found"
 
+
 @app.route('/department_histogram')
 @login_required
 def department_histogram():
@@ -621,8 +884,8 @@ def department_histogram():
         Department.dept_name,
         func.count(Dept_Emp.emp_no).label('employee_count')
     ).join(Dept_Emp, Department.dept_no == Dept_Emp.dept_no) \
-     .group_by(Department.dept_name) \
-     .all()
+        .group_by(Department.dept_name) \
+        .all()
 
     # Prepare data for the histogram
     dept_names = [dept[0] for dept in department_counts]
@@ -630,12 +893,13 @@ def department_histogram():
 
     return jsonify(department_names=dept_names, employee_counts=emp_counts)
 
+
 @app.route('/salary_ranges_pie_chart')
 @login_required
 def salary_ranges_pie_chart():
     # Define your salary ranges
-    ranges = [(0, 30000), (30000, 60000), (60000, 90000), (90000, 120000),(120000,300000)]
-    range_labels = ["0-30k", "30k-60k", "60k-90k","90-120k",">120k"]
+    ranges = [(0, 30000), (30000, 60000), (60000, 90000), (90000, 120000), (120000, 300000)]
+    range_labels = ["0-30k", "30k-60k", "60k-90k", "90-120k", ">120k"]
     counts = []
 
     for salary_range in ranges:
@@ -647,6 +911,29 @@ def salary_ranges_pie_chart():
 
     return jsonify(labels=range_labels, data=counts)
 
+
+@app.route('/add_hr_request', methods=['POST'])
+@login_required
+def add_hr_request():
+    data = request.get_json()
+    try:
+        new_request = HRRequest(
+            dept_no=data['dept_no'],
+            first_name=data['first_name'],
+            last_name=data['last_name'],
+            hire_date=datetime.strptime(data['hire_date'], '%Y-%m-%d').date(),
+            manager_no=data['manager_no'],
+            title=data['title'],
+            salary=50000,
+            hire_status=data['hire_status'],
+            req_type=data['req_type']
+        )
+        db.session.add(new_request)
+        db.session.commit()
+        return jsonify({'message': 'New hire request added successfully'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
 
 
 if __name__ == '__main__':

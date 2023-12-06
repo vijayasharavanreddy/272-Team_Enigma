@@ -6,14 +6,16 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='dashboard-style.css') }}">
 </head>
 <body>
+<div id="loader" class="loader"></div>
     <div class="header">
         <h1>Welcome to HR Dashboard</h1>
     </div>
-
+    <div class="overlay"></div>
     <div class="navbar">
         <a href="{{ url_for('employees') }}">Employees</a>
         <a href="{{ url_for('managers') }}">Managers</a>
         <a href="{{ url_for('departments') }}">Departments</a>
+        <a id="approvalsLink" style="margin-left: calc(100% - 562px);" href="">Approvals</a>
         <a href="{{ url_for('logout') }}" id="logout-btn">Logout</a>
     </div>
 
@@ -30,6 +32,32 @@
             <canvas id="salaryRangesPieChart"></canvas>
         </div>
     </div>
+
+    <div id="approvalsPanel" class="approvals-panel">
+    <div class="approvals-panel-header">
+        <h2>Approvals Required</h2>
+        <button onclick="closeApprovalsPanel()" class="close-btn">&times;</button>
+    </div>
+    <div id="approvalsContent" class="approvals-content"></div>
+</div>
+
+    <div id="approvalModal" class="modal">
+    <div class="modal-content">
+        <span class="close-button" onclick="closeModal()">&times;</span>
+        <h2>Approval Request</h2>
+        <div id="modalDetails">
+<!--            <input type="hidden" id="approvalReqType" name="approvalReqType" value="">-->
+            <!-- Details will be populated here -->
+        </div>
+        <div class="modal-footer">
+<!--            <input type="number" id="salaryInput" placeholder="Enter salary">-->
+            <button id="approveBtn" onclick="approveRequest()">Approve</button>
+            <button id="declineBtn" onclick="declineRequest()">Decline</button>
+        </div>
+    </div>
+</div>
+
+
  <script src="{{ url_for('static', filename='js/dashboard-script.js') }}"></script>
 </body>
 </html>

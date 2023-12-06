@@ -68,3 +68,410 @@ body {
 #logout-btn:hover {
     background-color: red;
 }
+
+/* ... existing CSS ... */
+
+.approvals-panel {
+    height: 100%;
+    width: 0;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    right: 0;
+    background-color: #f1f1f1;
+    overflow-x: hidden;
+    transition: 0.5s;
+    box-shadow: -5px 0 5px -5px rgba(0,0,0,0.5);
+}
+
+.approvals-panel-header {
+    padding: 0 20px;
+    background-color: #007bff;
+    color: white;
+    /*height: 100px;*/
+}
+
+.close-btn {
+    cursor: pointer;
+    background-color: transparent;
+    border: none;
+    color: white;
+    font-size: 30px;
+    float: right;
+    /*position: relative;*/
+    bottom: 80px;
+    /*left: 10px;*/
+}
+
+.approvals-panel-content {
+    padding: 20px;
+}
+
+/* ... additional CSS ... */
+/* ... existing CSS ... */
+
+@keyframes slideIn {
+    from { width: 0; }
+    to { width: 250px; }
+}
+
+@keyframes slideOut {
+    from { width: 250px; }
+    to { width: 0; }
+}
+
+.approvals-panel {
+    /* ... existing styles ... */
+    animation-fill-mode: forwards; /* Make sure the element retains the style set by the last keyframe */
+}
+
+.approval-card {
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.approval-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.approval-card h4 {
+    margin-top: 0;
+    color: #007bff;
+}
+
+
+.approval-card .badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 5px;
+    color: white;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.newhire .badge {
+    background-color: #28a745; /* Green for new hires */
+}
+
+.promotion .badge {
+    background-color: #007bff; /* Blue for promotions */
+}
+
+.termination .badge {
+    background-color: #dc3545; /* Red for terminations */
+}
+
+/* Modal Background */
+#approvalModal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.8);
+    animation: fadeInBackground 0.5s ease-in-out both;
+}
+
+/* Modal Content */
+#modalContent {
+    background-color: #fff;
+    margin: 10% auto;
+    padding: 25px;
+    border-radius: 20px;
+    width: 40%;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    animation: slideUp 0.5s ease-in-out both;
+}
+
+/* Close Button */
+.close-button {
+    color: #444;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close-button:hover, .close-button:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Modal Buttons */
+.modal-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.approve {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.approve:hover {
+    background-color: #45a049;
+    transform: translateY(-2px);
+}
+
+.decline {
+    background-color: #f44336;
+    color: white;
+}
+
+.decline:hover {
+    background-color: #d32f2f;
+    transform: translateY(-2px);
+}
+
+/* Input Field */
+#salaryInput {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+/* Animations */
+@keyframes fadeInBackground {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { transform: translateY(50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* Modal Footer */
+.modal-footer {
+    text-align: right;
+    margin-top: 20px;
+}
+
+/* Existing CSS for body, header, navbar, container, and chart-container */
+
+/* Approvals Panel Styling */
+.approvals-panel {
+    position: fixed;
+    z-index: 100;
+    top: 0;
+    right: 0;
+    width: 0;
+    height: 100vh;
+    background-color: #f1f1f1;
+    overflow-x: hidden;
+    transition: width 0.3s ease;
+    box-shadow: -10px 0 20px -10px rgba(0,0,0,0.5);
+}
+
+.approvals-panel-header {
+    padding: 20px;
+    background-color: #007bff;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.close-btn {
+    font-size: 30px;
+    color: white;
+    cursor: pointer;
+}
+
+.approvals-content {
+    padding: 20px;
+    overflow-y: auto;
+}
+
+/* Approval Card Styling */
+.approval-card {
+    background-color: white;
+    margin-bottom: 15px;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    transition: all 0.3s ease-in-out;
+    cursor: pointer;
+}
+
+.approval-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.approval-card h4 {
+    color: #007bff;
+}
+
+.badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 5px;
+    color: white;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+/* Badge Styling for Different Request Types */
+.newhire .badge { background-color: #28a745; }
+.promotion .badge { background-color: #007bff; }
+.termination .badge { background-color: #dc3545; }
+
+/* Modal Styling */
+#approvalModal {
+    /* ... existing styles ... */
+}
+
+#modalContent {
+    /* ... existing styles ... */
+    border-radius: 15px;
+    width: 30%; /* Adjust width for better responsiveness */
+}
+
+.close-button {
+    /* ... existing styles ... */
+}
+
+.modal-btn {
+    /* ... existing styles ... */
+}
+
+.approve, .decline {
+    width: 30%;
+    font-size: 16px;
+}
+
+/* Input Field Styling */
+#salaryInput {
+    width: 80%;
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+/* Modal Footer Styling */
+.modal-footer {
+    display: flex;
+    justify-content: space-around;
+    padding-top: 20px;
+}
+
+/* Animation for Modal */
+@keyframes fadeInBackground {
+    /* ... existing styles ... */
+}
+
+@keyframes slideUp {
+    /* ... existing styles ... */
+}
+
+/* Additional Styling for Responsiveness and Aesthetics */
+@media screen and (max-width: 768px) {
+    #modalContent {
+        width: 80%;
+    }
+}
+
+.overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6); /* Dimmed background */
+    z-index: 99; /* Ensure it's below the modal */
+}
+
+/* Modal Styling */
+#approvalModal {
+    display: none;
+    position: fixed;
+    z-index: 100; /* Ensure it's above the overlay */
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%); /* Center the modal */
+    /* ... other existing styles ... */
+    width: 50%;
+    height: 50%;
+    background-color: white;
+}
+
+.approval-card {
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin: 10px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+}
+
+.approval-card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 3px;
+    font-weight: bold;
+    color: white;
+}
+
+.newhire {
+    background-color: darkseagreen; /* Green for new hires */
+}
+
+.promote {
+    background-color: darkgray; /* Blue for promotions */
+}
+
+.terminate {
+    background-color: darksalmon; /* Red for terminations */
+}
+
+.approval-card .badge {
+    margin-bottom: 10px;
+}
+
+.loader {
+    display: none; /* Hidden by default */
+    position: fixed; /* Sit on top of the page content */
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    top: 0;
+    left: 0;
+    background-color: rgba(0,0,0,0.4); /* Black background with opacity */
+    z-index: 9999; /* Sit on top */
+    justify-content: center;
+    align-items: center;
+}
+
+/* Loader animation styles */
+.loader:after {
+    content: "Loading...";
+    color: white;
+    font-size: 20px;
+}
+
+
+/* ... additional CSS as needed ... */
+
+
