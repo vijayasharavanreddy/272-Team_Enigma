@@ -14,7 +14,7 @@ CREATE TABLE hr_user (
     password_hash VARCHAR(128),
     role VARCHAR(255)
 );
-</code> <br/>
+</code><br/>
 Configure app.config['SQLALCHEMY_DATABASE_URI'] with your local database connection string <br/><br/>
 Install all required packages from requirements.txt
 
