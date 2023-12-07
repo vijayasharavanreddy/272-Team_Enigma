@@ -19,5 +19,42 @@ Configure app.config['SQLALCHEMY_DATABASE_URI'] with your local database connect
 Install all required packages from requirements.txt
 
 <code> python3 install -r requirements.txt </code>
-<hr/>
+
 To run the application: <code> Python3 main.py </code>
+<hr/>
+
+# Project-Details:
+
+
+
+
+
+
+# High Level Design
+
+![High-Level-Design](https://github.com/shiva-vardhineedi/272-hrm/assets/143037444/f3c2f805-78d1-4f8f-94f9-20428f904890)
+
+
+# Class Diagram
+
+![WhatsApp Image 2023-12-06 at 6 10 04 PM](https://github.com/shiva-vardhineedi/272-hrm/assets/143037444/9be14bbb-6e6c-4696-8baa-e83b19346d42)
+
+
+
+# State Diagram
+
+![state-diagram](https://github.com/shiva-vardhineedi/272-hrm/assets/143037444/1951d040-40bc-418d-8ded-e8fe9e53ab45)
+
+# UML Diagram
+
+![UML_diagram](https://github.com/shiva-vardhineedi/272-hrm/assets/143037444/1bda5717-9536-4924-84a7-86f9055cada7)
+
+# Sequence Diagram
+
+![sequence-diagram](https://github.com/shiva-vardhineedi/272-hrm/assets/143037444/e095a31d-35c9-4aef-a95b-808482706645)
+
+
+
+
+
+
