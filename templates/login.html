@@ -6,6 +6,11 @@
         .flash-message {
             color: red;
         }
+        .google-sign-in-btn {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 15px; /* Adjust spacing as needed */
+        }
     </style>
      <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='login-style.css') }}">
     <script>
@@ -68,6 +73,11 @@
             <p class="register-link">
                 New here? <a href="{{ url_for('register') }}">Register now</a>.
             </p>
+            <div class="google-sign-in-btn">
+                <a href="#">
+                    <img src="{{ url_for('static', filename='/images/signInImage.jpeg') }}" alt="Sign in with Google">
+                </a>
+            </div>
         </form>
 
 </body>
