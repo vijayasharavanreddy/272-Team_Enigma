@@ -53,6 +53,11 @@ To run the application: <code> Python3 main.py </code>
 
 ![sequence-diagram](https://github.com/shiva-vardhineedi/272-hrm/assets/143037444/e095a31d-35c9-4aef-a95b-808482706645)
 
+# application home
+
+<img width="1440" alt="home-page" src="https://github.com/shiva-vardhineedi/272-hrm/assets/143037444/a931b84d-b206-4986-a340-bc2a4ec08649">
+
+
 
 
 
