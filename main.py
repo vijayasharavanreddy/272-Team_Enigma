@@ -23,7 +23,7 @@ from werkzeug.security import check_password_hash
 # db = SQLAlchemy()
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:root@localhost:3306/employees'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://vijay:vijayasharavan%40@localhost/hrdata'
 app.config['SECRET_KEY'] = 'p9Bv<3Eid9%$i01'  # Replace with a real secret key
 app.config['SERVER_START_IDENTIFIER'] = os.urandom(24)  # Configure session to use the file system
 # session = Session()
@@ -68,7 +68,7 @@ def unauthorized():
 
 @login_manager.user_loader
 def user_loader(user_id):
-    user = HRUser.query.get(int(user_id))
+    user = db.session.get(HRUser, int(user_id))
     if user:
         user_model = User(user.id, user.role)
         user_model.id = user.id
@@ -168,7 +168,7 @@ def register():
 @hr_required
 @login_required
 def dashboard():
-    user = HRUser.query.get(current_user.id)
+    user = db.session.get(HRUser, int(current_user.id))
     return render_template('dashboard.html', first_name=user.first_name)
 
 
@@ -182,7 +182,7 @@ def my_profile():
     user_id = current_user.id
 
     # Fetch HRUser and Employee by user_id and their names
-    user = HRUser.query.get(user_id)
+    user = db.session.get(HRUser, int(user_id))
     employee = Employee.query.filter_by(first_name=user.first_name, last_name=user.last_name).first()
 
     if user and employee:
@@ -206,7 +206,7 @@ def my_profile():
 @app.route('/dashboard_mgr')
 @login_required
 def dashboard_mgr():
-    user = HRUser.query.get(current_user.id)
+    user = db.session.get(HRUser, int(current_user.id))
     employee = Employee.query.filter_by(first_name=user.first_name, last_name=user.last_name).first()
     dept_no = "d001"
 
@@ -224,8 +224,16 @@ def dashboard_mgr():
     else:
         dept_name = "Employee not found"
 
-    return render_template('dashboard-mgr.html', employee=employee, first_name=employee.first_name, dept_name=dept_name,
-                           dept_no=dept_no, mgr_no=employee.emp_no)
+    if employee is None:
+        "Error: Employee not found", 404 
+
+    return render_template(
+        'dashboard-mgr.html',
+        employee=employee,
+        first_name=employee.first_name if employee else "N/A",
+        dept_name=dept_name if dept_name else "N/A"
+    )
+
 
 @app.route('/approvals_count')
 @login_required
@@ -237,7 +245,7 @@ def get_approval_count():
 @app.route('/dashboard_emp')
 @login_required
 def dashboard_emp():
-    user = HRUser.query.get(current_user.id)
+    user = db.session.get(HRUser, int(current_user.id))
     employee = Employee.query.filter_by(first_name=user.first_name, last_name=user.last_name).first()
     dept_no = "d001"
 
